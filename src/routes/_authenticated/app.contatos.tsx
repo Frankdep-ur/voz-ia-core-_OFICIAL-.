@@ -56,6 +56,8 @@ function ContatosPage() {
   const [editando, setEditando] = useState<ContatoRow | null>(null);
   const [excluir, setExcluir] = useState<ContatoRow | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [importando, setImportando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
 
   const { data: contatos = [], isLoading, refetch } = useQuery({
     queryKey: ["contatos", user.id],
