@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "VozIA — Entrar" },
@@ -17,7 +18,6 @@ export const Route = createFileRoute("/auth")({
     ],
   }),
   beforeLoad: async () => {
-    if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (data.session) throw redirect({ to: "/app" });
   },
