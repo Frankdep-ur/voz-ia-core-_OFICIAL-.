@@ -267,40 +267,38 @@ function DetalheCampanhaPage() {
         ))}
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Tentativas</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {linhas.length === 0 ? (
+      {linhas.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="Nenhum contato vinculado"
+          description="Crie uma nova campanha e selecione contatos para vincular aqui."
+        />
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                  Nenhum contato vinculado.
-                </TableCell>
+                <TableHead>Nome</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Tentativas</TableHead>
               </TableRow>
-            ) : (
-              linhas.map((l) => (
+            </TableHeader>
+            <TableBody>
+              {linhas.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="font-medium">{l.contatos?.nome ?? "—"}</TableCell>
                   <TableCell>{l.contatos?.telefone ?? "—"}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {STATUS_CAMPANHA_CONTATO_LABEL[l.status]}
-                    </Badge>
+                    <CampanhaContatoStatusBadge status={l.status} />
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{l.tentativas}</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }
