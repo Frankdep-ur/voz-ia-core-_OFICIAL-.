@@ -37,6 +37,7 @@ function AgentesPage() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const [excluir, setExcluir] = useState<AgenteRow | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
 
   const { data: agentes = [], isLoading, refetch } = useQuery({
     queryKey: ["agentes", user.id],
