@@ -294,6 +294,7 @@ function RelatoriosPage() {
                 <TableHead>Campanha</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Duração</TableHead>
+                <TableHead>Nota</TableHead>
                 <TableHead>Sentimento</TableHead>
                 <TableHead>Data</TableHead>
               </TableRow>
