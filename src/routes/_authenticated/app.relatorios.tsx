@@ -306,10 +306,11 @@ function RelatoriosPage() {
       {isLoading ? (
         <div className="text-muted-foreground">Carregando...</div>
       ) : ligacoes.length === 0 ? (
-        <div className="rounded-md border border-dashed p-10 text-center text-muted-foreground">
-          Nenhuma ligação ainda. As ligações aparecerão aqui assim que suas campanhas começarem a rodar.
-        </div>
-      ) : (
+        <EmptyState
+          icon={BarChart3}
+          title="Nenhuma ligação ainda"
+          description="As ligações aparecerão aqui assim que suas campanhas começarem a rodar."
+        />
         <div className="rounded-md border">
           <Table>
             <TableHeader>
