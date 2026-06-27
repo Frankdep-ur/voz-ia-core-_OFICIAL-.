@@ -21,6 +21,7 @@ export type Database = {
           idioma: string
           nome: string | null
           persona_prompt: string | null
+          saudacao_inicial: string | null
           user_id: string
           velocidade_fala: number
           voz_id: string | null
@@ -31,6 +32,7 @@ export type Database = {
           idioma?: string
           nome?: string | null
           persona_prompt?: string | null
+          saudacao_inicial?: string | null
           user_id: string
           velocidade_fala?: number
           voz_id?: string | null
@@ -41,6 +43,7 @@ export type Database = {
           idioma?: string
           nome?: string | null
           persona_prompt?: string | null
+          saudacao_inicial?: string | null
           user_id?: string
           velocidade_fala?: number
           voz_id?: string | null
