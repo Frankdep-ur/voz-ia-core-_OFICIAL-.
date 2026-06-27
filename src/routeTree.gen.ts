@@ -18,6 +18,8 @@ import { Route as AuthenticatedAppRelatoriosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppCampanhasRouteImport } from './routes/_authenticated/app.campanhas'
 import { Route as AuthenticatedAppAgentesRouteImport } from './routes/_authenticated/app.agentes'
+import { Route as AuthenticatedAppCampanhasNovaRouteImport } from './routes/_authenticated/app.campanhas_.nova'
+import { Route as AuthenticatedAppCampanhasIdRouteImport } from './routes/_authenticated/app.campanhas_.$id'
 import { Route as AuthenticatedAppAgentesIdRouteImport } from './routes/_authenticated/app.agentes_.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -67,6 +69,18 @@ const AuthenticatedAppAgentesRoute = AuthenticatedAppAgentesRouteImport.update({
   path: '/agentes',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppCampanhasNovaRoute =
+  AuthenticatedAppCampanhasNovaRouteImport.update({
+    id: '/campanhas_/nova',
+    path: '/campanhas/nova',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppCampanhasIdRoute =
+  AuthenticatedAppCampanhasIdRouteImport.update({
+    id: '/campanhas_/$id',
+    path: '/campanhas/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppAgentesIdRoute =
   AuthenticatedAppAgentesIdRouteImport.update({
     id: '/agentes_/$id',
@@ -84,6 +98,8 @@ export interface FileRoutesByFullPath {
   '/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/agentes/$id': typeof AuthenticatedAppAgentesIdRoute
+  '/app/campanhas/$id': typeof AuthenticatedAppCampanhasIdRoute
+  '/app/campanhas/nova': typeof AuthenticatedAppCampanhasNovaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +110,8 @@ export interface FileRoutesByTo {
   '/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/agentes/$id': typeof AuthenticatedAppAgentesIdRoute
+  '/app/campanhas/$id': typeof AuthenticatedAppCampanhasIdRoute
+  '/app/campanhas/nova': typeof AuthenticatedAppCampanhasNovaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +125,8 @@ export interface FileRoutesById {
   '/_authenticated/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/agentes_/$id': typeof AuthenticatedAppAgentesIdRoute
+  '/_authenticated/app/campanhas_/$id': typeof AuthenticatedAppCampanhasIdRoute
+  '/_authenticated/app/campanhas_/nova': typeof AuthenticatedAppCampanhasNovaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,6 +140,8 @@ export interface FileRouteTypes {
     | '/app/relatorios'
     | '/app/'
     | '/app/agentes/$id'
+    | '/app/campanhas/$id'
+    | '/app/campanhas/nova'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -130,6 +152,8 @@ export interface FileRouteTypes {
     | '/app/relatorios'
     | '/app'
     | '/app/agentes/$id'
+    | '/app/campanhas/$id'
+    | '/app/campanhas/nova'
   id:
     | '__root__'
     | '/'
@@ -142,6 +166,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/relatorios'
     | '/_authenticated/app/'
     | '/_authenticated/app/agentes_/$id'
+    | '/_authenticated/app/campanhas_/$id'
+    | '/_authenticated/app/campanhas_/nova'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +241,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAgentesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/campanhas_/nova': {
+      id: '/_authenticated/app/campanhas_/nova'
+      path: '/campanhas/nova'
+      fullPath: '/app/campanhas/nova'
+      preLoaderRoute: typeof AuthenticatedAppCampanhasNovaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/campanhas_/$id': {
+      id: '/_authenticated/app/campanhas_/$id'
+      path: '/campanhas/$id'
+      fullPath: '/app/campanhas/$id'
+      preLoaderRoute: typeof AuthenticatedAppCampanhasIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/agentes_/$id': {
       id: '/_authenticated/app/agentes_/$id'
       path: '/agentes/$id'
@@ -232,6 +272,8 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppRelatoriosRoute: typeof AuthenticatedAppRelatoriosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppAgentesIdRoute: typeof AuthenticatedAppAgentesIdRoute
+  AuthenticatedAppCampanhasIdRoute: typeof AuthenticatedAppCampanhasIdRoute
+  AuthenticatedAppCampanhasNovaRoute: typeof AuthenticatedAppCampanhasNovaRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -241,6 +283,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppRelatoriosRoute: AuthenticatedAppRelatoriosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppAgentesIdRoute: AuthenticatedAppAgentesIdRoute,
+  AuthenticatedAppCampanhasIdRoute: AuthenticatedAppCampanhasIdRoute,
+  AuthenticatedAppCampanhasNovaRoute: AuthenticatedAppCampanhasNovaRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
