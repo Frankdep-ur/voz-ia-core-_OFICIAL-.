@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Pencil, Trash2, Plus, Bot } from "lucide-react";
+import { Pencil, Trash2, Plus, Bot, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { rotuloIdioma, rotuloVoz } from "@/lib/agentes";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const Route = createFileRoute("/_authenticated/app/agentes")({
   head: () => ({ meta: [{ title: "Agentes — VozIA" }] }),
@@ -36,6 +37,7 @@ function AgentesPage() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const [excluir, setExcluir] = useState<AgenteRow | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
 
   const { data: agentes = [], isLoading, refetch } = useQuery({
     queryKey: ["agentes", user.id],
@@ -51,7 +53,9 @@ function AgentesPage() {
 
   async function confirmarExclusao() {
     if (!excluir) return;
+    setExcluindo(true);
     const { error } = await supabase.from("agentes").delete().eq("id", excluir.id);
+    setExcluindo(false);
     if (error) toast.error("Erro ao excluir", { description: error.message });
     else {
       toast.success("Agente excluído");
@@ -80,16 +84,13 @@ function AgentesPage() {
           Carregando...
         </div>
       ) : agentes.length === 0 ? (
-        <div className="rounded-md border p-12 text-center">
-          <Bot className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-          <p className="mb-4 text-muted-foreground">
-            Você ainda não criou nenhum agente. Crie o primeiro para começar.
-          </p>
-          <Button onClick={() => navigate({ to: "/app/agentes/$id", params: { id: "novo" } })}>
-            <Plus className="mr-1 h-4 w-4" />
-            Criar primeiro agente
-          </Button>
-        </div>
+        <EmptyState
+          icon={Bot}
+          title="Você ainda não criou nenhum agente"
+          description="Defina a personalidade, voz e idioma da sua IA para começar."
+          actionLabel="Criar primeiro agente"
+          onAction={() => navigate({ to: "/app/agentes/$id", params: { id: "novo" } })}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {agentes.map((a) => (
@@ -130,8 +131,17 @@ function AgentesPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmarExclusao}>Excluir</AlertDialogAction>
+            <AlertDialogCancel disabled={excluindo}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmarExclusao} disabled={excluindo}>
+              {excluindo ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

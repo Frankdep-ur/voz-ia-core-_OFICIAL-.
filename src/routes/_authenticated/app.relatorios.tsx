@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { BarChart3, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -216,12 +218,26 @@ function RelatoriosPage() {
         <div className="flex flex-col items-end gap-1">
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={gerarExemplos} disabled={gerando}>
-              {gerando ? "Gerando..." : "Gerar dados de exemplo (teste)"}
+              {gerando ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                "Gerar dados de exemplo (teste)"
+              )}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" size="sm" disabled={limpando}>
-                  Limpar ligações de exemplo
+                  {limpando ? (
+                    <>
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                      Limpando...
+                    </>
+                  ) : (
+                    "Limpar ligações de exemplo"
+                  )}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -232,8 +248,17 @@ function RelatoriosPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={limparExemplos}>Apagar</AlertDialogAction>
+                  <AlertDialogCancel disabled={limpando}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={limparExemplos} disabled={limpando}>
+                    {limpando ? (
+                      <>
+                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                        Apagando...
+                      </>
+                    ) : (
+                      "Apagar"
+                    )}
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -281,9 +306,11 @@ function RelatoriosPage() {
       {isLoading ? (
         <div className="text-muted-foreground">Carregando...</div>
       ) : ligacoes.length === 0 ? (
-        <div className="rounded-md border border-dashed p-10 text-center text-muted-foreground">
-          Nenhuma ligação ainda. As ligações aparecerão aqui assim que suas campanhas começarem a rodar.
-        </div>
+        <EmptyState
+          icon={BarChart3}
+          title="Nenhuma ligação ainda"
+          description="As ligações aparecerão aqui assim que suas campanhas começarem a rodar."
+        />
       ) : (
         <div className="rounded-md border">
           <Table>

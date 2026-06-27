@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Pencil, Trash2, Plus, Upload, Download, Search } from "lucide-react";
+import { Pencil, Trash2, Plus, Upload, Download, Search, Users, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,7 @@ import {
   type StatusContato,
 } from "@/lib/contatos";
 import { ContatoFormDialog, type ContatoRow } from "@/components/contatos/contato-form-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const Route = createFileRoute("/_authenticated/app/contatos")({
   head: () => ({ meta: [{ title: "Contatos — VozIA" }] }),
@@ -55,6 +56,8 @@ function ContatosPage() {
   const [editando, setEditando] = useState<ContatoRow | null>(null);
   const [excluir, setExcluir] = useState<ContatoRow | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [importando, setImportando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
 
   const { data: contatos = [], isLoading, refetch } = useQuery({
     queryKey: ["contatos", user.id],
@@ -92,7 +95,9 @@ function ContatosPage() {
 
   async function confirmarExclusao() {
     if (!excluir) return;
+    setExcluindo(true);
     const { error } = await supabase.from("contatos").delete().eq("id", excluir.id);
+    setExcluindo(false);
     if (error) toast.error("Erro ao excluir", { description: error.message });
     else {
       toast.success("Contato excluído");
@@ -115,6 +120,7 @@ function ContatosPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    setImportando(true);
     try {
       const text = await file.text();
       const linhas = parseCSV(text);
@@ -156,6 +162,8 @@ function ContatosPage() {
       refetch();
     } catch (err: any) {
       toast.error("Erro ao ler arquivo", { description: err?.message });
+    } finally {
+      setImportando(false);
     }
   }
 
@@ -173,9 +181,23 @@ function ContatosPage() {
             <Download className="mr-1 h-4 w-4" />
             Baixar modelo CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-            <Upload className="mr-1 h-4 w-4" />
-            Importar CSV
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current?.click()}
+            disabled={importando}
+          >
+            {importando ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Importando...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-1 h-4 w-4" />
+                Importar CSV
+              </>
+            )}
           </Button>
           <input
             ref={fileRef}
@@ -216,16 +238,20 @@ function ContatosPage() {
         </Select>
       </div>
 
-      <div className="rounded-md border">
-        {isLoading ? (
-          <div className="p-10 text-center text-muted-foreground">Carregando...</div>
-        ) : contatos.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-muted-foreground">
-              Você ainda não tem contatos. Crie um ou importe um CSV.
-            </p>
-          </div>
-        ) : (
+      {isLoading ? (
+        <div className="rounded-md border p-10 text-center text-muted-foreground">
+          Carregando...
+        </div>
+      ) : contatos.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="Você ainda não tem contatos"
+          description="Importe seus primeiros contatos a partir de um arquivo CSV ou cadastre manualmente."
+          actionLabel="Cadastrar primeiro contato"
+          onAction={abrirNovo}
+        />
+      ) : (
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -267,8 +293,8 @@ function ContatosPage() {
               )}
             </TableBody>
           </Table>
-        )}
-      </div>
+        </div>
+      )}
 
       <ContatoFormDialog
         open={dialogOpen}
@@ -287,8 +313,17 @@ function ContatosPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmarExclusao}>Excluir</AlertDialogAction>
+            <AlertDialogCancel disabled={excluindo}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmarExclusao} disabled={excluindo}>
+              {excluindo ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

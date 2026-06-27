@@ -1,11 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Pause, Play } from "lucide-react";
+import { ArrowLeft, Loader2, Pause, Play, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -16,13 +15,17 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import {
-  STATUS_CAMPANHA_CONTATO_LABEL,
-  STATUS_CAMPANHA_LABEL,
   formatarDataHora,
   proximaAcao,
   type StatusCampanha,
   type StatusCampanhaContato,
 } from "@/lib/campanhas";
+import {
+  CampanhaContatoStatusBadge,
+  CampanhaStatusBadge,
+} from "@/components/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { extrairErroEdge } from "@/lib/edge-errors";
 import { rotuloIdioma, rotuloVoz } from "@/lib/agentes";
 
 export const Route = createFileRoute("/_authenticated/app/campanhas_/$id")({
@@ -135,7 +138,8 @@ function DetalheCampanhaPage() {
         body: { campanha_id: campanha.id },
       });
       if (error) {
-        toast.error("Erro ao iniciar", { description: error.message });
+        const detalhe = await extrairErroEdge(error, "Não foi possível iniciar a campanha.");
+        toast.error("Erro ao iniciar", { description: detalhe });
         return;
       }
       if (data?.started) {
@@ -186,14 +190,23 @@ function DetalheCampanhaPage() {
           </Button>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-semibold">{campanha.nome ?? "(sem nome)"}</h2>
-            <Badge variant="secondary">{STATUS_CAMPANHA_LABEL[campanha.status]}</Badge>
+            <CampanhaStatusBadge status={campanha.status} />
           </div>
         </div>
         <div className="flex gap-2">
           {acao === "iniciar" && (
             <Button onClick={iniciar} disabled={iniciando}>
-              <Play className="mr-1 h-4 w-4" />
-              Iniciar
+              {iniciando ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Iniciando...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-1 h-4 w-4" />
+                  Iniciar
+                </>
+              )}
             </Button>
           )}
           {acao === "pausar" && (
@@ -254,40 +267,38 @@ function DetalheCampanhaPage() {
         ))}
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Tentativas</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {linhas.length === 0 ? (
+      {linhas.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="Nenhum contato vinculado"
+          description="Crie uma nova campanha e selecione contatos para vincular aqui."
+        />
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                  Nenhum contato vinculado.
-                </TableCell>
+                <TableHead>Nome</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Tentativas</TableHead>
               </TableRow>
-            ) : (
-              linhas.map((l) => (
+            </TableHeader>
+            <TableBody>
+              {linhas.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="font-medium">{l.contatos?.nome ?? "—"}</TableCell>
                   <TableCell>{l.contatos?.telefone ?? "—"}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {STATUS_CAMPANHA_CONTATO_LABEL[l.status]}
-                    </Badge>
+                    <CampanhaContatoStatusBadge status={l.status} />
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{l.tentativas}</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, Play, Pause, Eye, Megaphone } from "lucide-react";
+import { Plus, Trash2, Play, Pause, Eye, Megaphone, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CampanhaStatusBadge } from "@/components/status-badge";
+import { extrairErroEdge } from "@/lib/edge-errors";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +20,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
-  STATUS_CAMPANHA_LABEL,
   formatarDataHora,
   proximaAcao,
   type StatusCampanha,
@@ -36,14 +37,6 @@ type CampanhaRow = {
   agendada_para: string | null;
   agente_id: string | null;
   agentes: { nome: string | null } | null;
-};
-
-const STATUS_VARIANT: Record<StatusCampanha, "default" | "secondary" | "outline" | "destructive"> = {
-  rascunho: "outline",
-  agendada: "secondary",
-  em_andamento: "default",
-  pausada: "secondary",
-  concluida: "outline",
 };
 
 function CampanhasPage() {
@@ -138,7 +131,8 @@ function CampanhasPage() {
         body: { campanha_id: id },
       });
       if (error) {
-        toast.error("Erro ao iniciar", { description: error.message });
+        const detalhe = await extrairErroEdge(error, "Não foi possível iniciar a campanha.");
+        toast.error("Erro ao iniciar", { description: detalhe });
         return;
       }
       if (data?.started) {
@@ -175,16 +169,13 @@ function CampanhasPage() {
           Carregando...
         </div>
       ) : campanhas.length === 0 ? (
-        <div className="rounded-md border p-12 text-center">
-          <Megaphone className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-          <p className="mb-4 text-muted-foreground">
-            Você ainda não criou nenhuma campanha. Crie a primeira para começar.
-          </p>
-          <Button onClick={novaCampanha}>
-            <Plus className="mr-1 h-4 w-4" />
-            Criar primeira campanha
-          </Button>
-        </div>
+        <EmptyState
+          icon={Megaphone}
+          title="Nenhuma campanha por aqui ainda"
+          description="Crie sua primeira campanha para começar a discar para seus contatos."
+          actionLabel="Criar primeira campanha"
+          onAction={novaCampanha}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {campanhas.map((c) => {
@@ -195,9 +186,7 @@ function CampanhasPage() {
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="line-clamp-1">{c.nome ?? "(sem nome)"}</CardTitle>
-                    <Badge variant={STATUS_VARIANT[c.status]}>
-                      {STATUS_CAMPANHA_LABEL[c.status]}
-                    </Badge>
+                    <CampanhaStatusBadge status={c.status} />
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-3 text-sm">
@@ -231,8 +220,17 @@ function CampanhasPage() {
                         onClick={() => iniciar(c.id)}
                         disabled={iniciando === c.id}
                       >
-                        <Play className="mr-1 h-4 w-4" />
-                        Iniciar
+                        {iniciando === c.id ? (
+                          <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            Iniciando...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="mr-1 h-4 w-4" />
+                            Iniciar
+                          </>
+                        )}
                       </Button>
                     )}
                     {acao === "pausar" && (
