@@ -18,6 +18,7 @@ import { Route as AuthenticatedAppRelatoriosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppCampanhasRouteImport } from './routes/_authenticated/app.campanhas'
 import { Route as AuthenticatedAppAgentesRouteImport } from './routes/_authenticated/app.agentes'
+import { Route as AuthenticatedAppAgentesIdRouteImport } from './routes/_authenticated/app.agentes_.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -66,6 +67,12 @@ const AuthenticatedAppAgentesRoute = AuthenticatedAppAgentesRouteImport.update({
   path: '/agentes',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppAgentesIdRoute =
+  AuthenticatedAppAgentesIdRouteImport.update({
+    id: '/agentes_/$id',
+    path: '/agentes/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -76,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/app/contatos': typeof AuthenticatedAppContatosRoute
   '/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/agentes/$id': typeof AuthenticatedAppAgentesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/app/contatos': typeof AuthenticatedAppContatosRoute
   '/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/agentes/$id': typeof AuthenticatedAppAgentesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/_authenticated/app/contatos': typeof AuthenticatedAppContatosRoute
   '/_authenticated/app/relatorios': typeof AuthenticatedAppRelatoriosRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/agentes_/$id': typeof AuthenticatedAppAgentesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/app/contatos'
     | '/app/relatorios'
     | '/app/'
+    | '/app/agentes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/app/contatos'
     | '/app/relatorios'
     | '/app'
+    | '/app/agentes/$id'
   id:
     | '__root__'
     | '/'
@@ -129,6 +141,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/contatos'
     | '/_authenticated/app/relatorios'
     | '/_authenticated/app/'
+    | '/_authenticated/app/agentes_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -202,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAgentesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/agentes_/$id': {
+      id: '/_authenticated/app/agentes_/$id'
+      path: '/agentes/$id'
+      fullPath: '/app/agentes/$id'
+      preLoaderRoute: typeof AuthenticatedAppAgentesIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
@@ -211,6 +231,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppContatosRoute: typeof AuthenticatedAppContatosRoute
   AuthenticatedAppRelatoriosRoute: typeof AuthenticatedAppRelatoriosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppAgentesIdRoute: typeof AuthenticatedAppAgentesIdRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -219,6 +240,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppContatosRoute: AuthenticatedAppContatosRoute,
   AuthenticatedAppRelatoriosRoute: AuthenticatedAppRelatoriosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppAgentesIdRoute: AuthenticatedAppAgentesIdRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
