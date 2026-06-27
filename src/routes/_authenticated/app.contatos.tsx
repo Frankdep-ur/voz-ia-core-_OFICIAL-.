@@ -41,6 +41,7 @@ import {
   type StatusContato,
 } from "@/lib/contatos";
 import { ContatoFormDialog, type ContatoRow } from "@/components/contatos/contato-form-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const Route = createFileRoute("/_authenticated/app/contatos")({
   head: () => ({ meta: [{ title: "Contatos — VozIA" }] }),
