@@ -14,7 +14,242 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agentes: {
+        Row: {
+          criado_em: string
+          id: string
+          idioma: string
+          nome: string | null
+          persona_prompt: string | null
+          user_id: string
+          velocidade_fala: number
+          voz_id: string | null
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          idioma?: string
+          nome?: string | null
+          persona_prompt?: string | null
+          user_id: string
+          velocidade_fala?: number
+          voz_id?: string | null
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          idioma?: string
+          nome?: string | null
+          persona_prompt?: string | null
+          user_id?: string
+          velocidade_fala?: number
+          voz_id?: string | null
+        }
+        Relationships: []
+      }
+      campanha_contatos: {
+        Row: {
+          atualizado_em: string
+          campanha_id: string
+          contato_id: string
+          id: string
+          status: Database["public"]["Enums"]["app_status_campanha_contato"]
+          tentativas: number
+        }
+        Insert: {
+          atualizado_em?: string
+          campanha_id: string
+          contato_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["app_status_campanha_contato"]
+          tentativas?: number
+        }
+        Update: {
+          atualizado_em?: string
+          campanha_id?: string
+          contato_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["app_status_campanha_contato"]
+          tentativas?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campanha_contatos_campanha_id_fkey"
+            columns: ["campanha_id"]
+            isOneToOne: false
+            referencedRelation: "campanhas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campanha_contatos_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campanhas: {
+        Row: {
+          agendada_para: string | null
+          agente_id: string | null
+          criado_em: string
+          id: string
+          max_tentativas: number
+          nome: string | null
+          status: Database["public"]["Enums"]["app_status_campanha"]
+          user_id: string
+        }
+        Insert: {
+          agendada_para?: string | null
+          agente_id?: string | null
+          criado_em?: string
+          id?: string
+          max_tentativas?: number
+          nome?: string | null
+          status?: Database["public"]["Enums"]["app_status_campanha"]
+          user_id: string
+        }
+        Update: {
+          agendada_para?: string | null
+          agente_id?: string | null
+          criado_em?: string
+          id?: string
+          max_tentativas?: number
+          nome?: string | null
+          status?: Database["public"]["Enums"]["app_status_campanha"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campanhas_agente_id_fkey"
+            columns: ["agente_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contatos: {
+        Row: {
+          criado_em: string
+          email: string | null
+          id: string
+          nome: string | null
+          observacoes: string | null
+          status: Database["public"]["Enums"]["app_status_contato"]
+          tags: string | null
+          telefone: string | null
+          user_id: string
+        }
+        Insert: {
+          criado_em?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["app_status_contato"]
+          tags?: string | null
+          telefone?: string | null
+          user_id: string
+        }
+        Update: {
+          criado_em?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["app_status_contato"]
+          tags?: string | null
+          telefone?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ligacoes: {
+        Row: {
+          campanha_id: string | null
+          contato_id: string | null
+          duracao_segundos: number | null
+          finalizada_em: string | null
+          gravacao_url: string | null
+          id: string
+          iniciada_em: string | null
+          resultado: string | null
+          sentimento: Database["public"]["Enums"]["app_sentimento"] | null
+          status: string | null
+          transcricao: string | null
+          twilio_call_sid: string | null
+          user_id: string
+        }
+        Insert: {
+          campanha_id?: string | null
+          contato_id?: string | null
+          duracao_segundos?: number | null
+          finalizada_em?: string | null
+          gravacao_url?: string | null
+          id?: string
+          iniciada_em?: string | null
+          resultado?: string | null
+          sentimento?: Database["public"]["Enums"]["app_sentimento"] | null
+          status?: string | null
+          transcricao?: string | null
+          twilio_call_sid?: string | null
+          user_id: string
+        }
+        Update: {
+          campanha_id?: string | null
+          contato_id?: string | null
+          duracao_segundos?: number | null
+          finalizada_em?: string | null
+          gravacao_url?: string | null
+          id?: string
+          iniciada_em?: string | null
+          resultado?: string | null
+          sentimento?: Database["public"]["Enums"]["app_sentimento"] | null
+          status?: string | null
+          transcricao?: string | null
+          twilio_call_sid?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ligacoes_campanha_id_fkey"
+            columns: ["campanha_id"]
+            isOneToOne: false
+            referencedRelation: "campanhas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ligacoes_contato_id_fkey"
+            columns: ["contato_id"]
+            isOneToOne: false
+            referencedRelation: "contatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          criado_em: string
+          empresa: string | null
+          id: string
+          nome: string | null
+        }
+        Insert: {
+          criado_em?: string
+          empresa?: string | null
+          id: string
+          nome?: string | null
+        }
+        Update: {
+          criado_em?: string
+          empresa?: string | null
+          id?: string
+          nome?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +258,21 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_sentimento: "positivo" | "neutro" | "negativo"
+      app_status_campanha:
+        | "rascunho"
+        | "agendada"
+        | "em_andamento"
+        | "pausada"
+        | "concluida"
+      app_status_campanha_contato:
+        | "na_fila"
+        | "ligando"
+        | "atendida"
+        | "sem_resposta"
+        | "concluida"
+        | "falhou"
+      app_status_contato: "novo" | "ligado" | "convertido" | "nao_atender"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +399,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_sentimento: ["positivo", "neutro", "negativo"],
+      app_status_campanha: [
+        "rascunho",
+        "agendada",
+        "em_andamento",
+        "pausada",
+        "concluida",
+      ],
+      app_status_campanha_contato: [
+        "na_fila",
+        "ligando",
+        "atendida",
+        "sem_resposta",
+        "concluida",
+        "falhou",
+      ],
+      app_status_contato: ["novo", "ligado", "convertido", "nao_atender"],
+    },
   },
 } as const
