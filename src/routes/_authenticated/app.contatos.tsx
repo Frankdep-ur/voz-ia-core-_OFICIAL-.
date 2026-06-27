@@ -181,9 +181,23 @@ function ContatosPage() {
             <Download className="mr-1 h-4 w-4" />
             Baixar modelo CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-            <Upload className="mr-1 h-4 w-4" />
-            Importar CSV
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current?.click()}
+            disabled={importando}
+          >
+            {importando ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Importando...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-1 h-4 w-4" />
+                Importar CSV
+              </>
+            )}
           </Button>
           <input
             ref={fileRef}
