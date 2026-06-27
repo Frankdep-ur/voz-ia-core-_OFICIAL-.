@@ -190,14 +190,23 @@ function DetalheCampanhaPage() {
           </Button>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl font-semibold">{campanha.nome ?? "(sem nome)"}</h2>
-            <Badge variant="secondary">{STATUS_CAMPANHA_LABEL[campanha.status]}</Badge>
+            <CampanhaStatusBadge status={campanha.status} />
           </div>
         </div>
         <div className="flex gap-2">
           {acao === "iniciar" && (
             <Button onClick={iniciar} disabled={iniciando}>
-              <Play className="mr-1 h-4 w-4" />
-              Iniciar
+              {iniciando ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Iniciando...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-1 h-4 w-4" />
+                  Iniciar
+                </>
+              )}
             </Button>
           )}
           {acao === "pausar" && (
