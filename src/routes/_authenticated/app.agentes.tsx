@@ -69,7 +69,7 @@ function AgentesPage() {
             Crie a personalidade e a voz da sua IA nas ligações.
           </p>
         </div>
-        <Button onClick={() => navigate({ to: "/app/agentes_/$id", params: { id: "novo" } })}>
+        <Button onClick={() => navigate({ to: "/app/agentes/$id", params: { id: "novo" } })}>
           <Plus className="mr-1 h-4 w-4" />
           Novo agente
         </Button>
@@ -85,7 +85,7 @@ function AgentesPage() {
           <p className="mb-4 text-muted-foreground">
             Você ainda não criou nenhum agente. Crie o primeiro para começar.
           </p>
-          <Button onClick={() => navigate({ to: "/app/agentes_/$id", params: { id: "novo" } })}>
+          <Button onClick={() => navigate({ to: "/app/agentes/$id", params: { id: "novo" } })}>
             <Plus className="mr-1 h-4 w-4" />
             Criar primeiro agente
           </Button>
@@ -107,7 +107,7 @@ function AgentesPage() {
                 </div>
                 <div className="mt-auto flex justify-end gap-1 pt-2">
                   <Button variant="ghost" size="icon" asChild>
-                    <Link to="/app/agentes_/$id" params={{ id: a.id }}>
+                    <Link to="/app/agentes/$id" params={{ id: a.id }}>
                       <Pencil className="h-4 w-4" />
                     </Link>
                   </Button>
