@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
   if (errCount) return json(500, { error: errCount.message });
   if (!count || count === 0) {
-    return json(400, {
+    return json(200, {
       started: false,
       message:
         "Esta campanha não tem contatos na fila. Adicione contatos antes de iniciar.",
