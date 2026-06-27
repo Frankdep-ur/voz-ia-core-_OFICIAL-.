@@ -84,16 +84,13 @@ function AgentesPage() {
           Carregando...
         </div>
       ) : agentes.length === 0 ? (
-        <div className="rounded-md border p-12 text-center">
-          <Bot className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-          <p className="mb-4 text-muted-foreground">
-            Você ainda não criou nenhum agente. Crie o primeiro para começar.
-          </p>
-          <Button onClick={() => navigate({ to: "/app/agentes/$id", params: { id: "novo" } })}>
-            <Plus className="mr-1 h-4 w-4" />
-            Criar primeiro agente
-          </Button>
-        </div>
+        <EmptyState
+          icon={Bot}
+          title="Você ainda não criou nenhum agente"
+          description="Defina a personalidade, voz e idioma da sua IA para começar."
+          actionLabel="Criar primeiro agente"
+          onAction={() => navigate({ to: "/app/agentes/$id", params: { id: "novo" } })}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {agentes.map((a) => (
