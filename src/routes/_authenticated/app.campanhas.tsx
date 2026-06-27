@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
-  STATUS_CAMPANHA_LABEL,
   formatarDataHora,
   proximaAcao,
   type StatusCampanha,
@@ -38,14 +37,6 @@ type CampanhaRow = {
   agendada_para: string | null;
   agente_id: string | null;
   agentes: { nome: string | null } | null;
-};
-
-const STATUS_VARIANT: Record<StatusCampanha, "default" | "secondary" | "outline" | "destructive"> = {
-  rascunho: "outline",
-  agendada: "secondary",
-  em_andamento: "default",
-  pausada: "secondary",
-  concluida: "outline",
 };
 
 function CampanhasPage() {
