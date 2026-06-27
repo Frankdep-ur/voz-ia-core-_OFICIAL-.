@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, Play, Pause, Eye, Megaphone } from "lucide-react";
+import { Plus, Trash2, Play, Pause, Eye, Megaphone, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CampanhaStatusBadge } from "@/components/status-badge";
+import { extrairErroEdge } from "@/lib/edge-errors";
 import {
   AlertDialog,
   AlertDialogAction,
