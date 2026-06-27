@@ -362,6 +362,7 @@ function DetalheLigacao({ ligacao }: { ligacao: Ligacao }) {
         <div>Campanha: <span className="font-medium">{ligacao.campanhas?.nome ?? "—"}</span></div>
         <div>Data: {formatDataHora(ligacao.iniciada_em)}</div>
         <div>Duração: <span className="tabular-nums">{formatDuracao(ligacao.duracao_segundos)}</span></div>
+        <div>Nota: <span className="tabular-nums font-medium">{formatNota(ligacao.nota)}</span></div>
         <div className="flex items-center gap-2 pt-1">
           <Badge variant="outline">{ligacao.status ?? "—"}</Badge>
           {ligacao.sentimento && (
