@@ -1,17 +1,31 @@
 ## Objetivo
-Cadastrar os dois segredos do backend usados pela Edge Function `iniciar-campanha`. Nenhuma alteração de código: a função já faz POST em `${VOICE_BACKEND_URL}/campanhas/iniciar` com `Authorization: Bearer ${VOICE_BACKEND_SECRET}`, corpo `{ campanha_id }`, e atualiza o status para `em_andamento` quando a resposta é OK.
+Permitir reexecutar uma campanha já iniciada e expor erros reais nas respostas da Edge Function `iniciar-campanha`.
 
-## Passos
+## Mudanças em `supabase/functions/iniciar-campanha/index.ts`
 
-1. **Salvar `VOICE_BACKEND_URL`** (valor público) via `set_secret`:
-   - `VOICE_BACKEND_URL = https://vozia-motor-de-voz-production.up.railway.app`
+1. **Reset antes de contar a fila**
+   - Após validar `campanha_id` e carregar a campanha (mantém leitura de `id, status`), executar dois updates via cliente autenticado (RLS garante posse):
+     - `UPDATE campanha_contatos SET status = 'na_fila', tentativas = 0, atualizado_em = now() WHERE campanha_id = :id` — devolve todos os contatos (atendida/sem_resposta/concluida/falhou/ligando) para a fila.
+     - `UPDATE campanhas SET status = 'rascunho' WHERE id = :id` — volta a campanha ao status inicial (mesmo de antes de iniciar). Observação: o schema não guarda o "status anterior real" de cada campanha; usamos `rascunho` como o estado inicial canônico definido pelo default da coluna. Se algum dos updates falhar, retornar o erro real (ver item 2).
+   - Só depois, contar `campanha_contatos` com `status = 'na_fila'` e seguir o fluxo atual (chamar `VOICE_BACKEND_URL`, marcar `em_andamento` no sucesso).
 
-2. **Solicitar `VOICE_BACKEND_SECRET`** via `add_secret`:
-   - Abre um formulário seguro para você colar o valor.
-   - Fica disponível apenas no backend como `Deno.env.get("VOICE_BACKEND_SECRET")`.
-   - Nunca vai pro frontend, código, logs nem `.env` do repo.
+2. **Erros reais em todas as respostas**
+   - Toda resposta de erro passa a incluir o detalhe real (mensagem, status upstream, corpo retornado, stack quando aplicável) em vez de strings genéricas. Pontos afetados:
+     - Configuração ausente do Supabase: incluir quais envs faltam.
+     - Falta de `Authorization`: manter 401 com mensagem clara.
+     - JSON inválido no corpo: incluir a mensagem do `catch`.
+     - `campanha_id` ausente/ inválido: descrever o que veio.
+     - Erros do Supabase (`errCamp`, novos updates de reset, `errCount`, `errUpd`): retornar `error.message`, `error.details`, `error.hint`, `error.code`.
+     - Backend de voz indisponível (env faltando): listar quais.
+     - `fetch` para `${VOICE_BACKEND_URL}/campanhas/iniciar` falhando: retornar `status`, `statusText` e corpo bruto recebido.
+     - `catch` do `fetch`: retornar `message` e `stack`.
+   - Manter o padrão atual de devolver 200 com `{ started: false, message, detail }` para falhas "de negócio" (sem contatos, upstream com erro), e usar status HTTP de erro (4xx/5xx) somente para falhas de plataforma — sempre com payload detalhado.
 
-3. **Confirmar comportamento** (sem editar código): reler `supabase/functions/iniciar-campanha/index.ts` para validar que o fluxo POST → Bearer → update status já está correto e relatar.
+3. **Sem mudanças** em schema, RLS, frontend ou outros arquivos.
 
-## Onde colocar o segredo com segurança
-Somente no formulário aberto pelo `add_secret` no passo 2. Não cole o valor no chat, em arquivos do projeto, no frontend nem em `.env` versionado.
+## Validação
+- Deploy da function.
+- Rodar uma campanha já concluída/pausada e confirmar:
+  - `campanha_contatos` voltam para `na_fila` com `tentativas = 0`.
+  - `campanhas.status` volta para `rascunho` e depois para `em_andamento` quando o upstream aceita.
+  - Forçar erro (ex.: secret inválido) e confirmar que o toast no frontend mostra o detalhe real.
