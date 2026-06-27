@@ -26,12 +26,24 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
   SENTIMENTO_LABEL,
-  TRANSCRICAO_EXEMPLO,
   formatDataHora,
   formatDuracao,
+  formatNota,
+  gerarLoteExemplo,
   parseTranscricaoChat,
   sentimentoBadgeClass,
   type Sentimento,
