@@ -53,7 +53,9 @@ function AgentesPage() {
 
   async function confirmarExclusao() {
     if (!excluir) return;
+    setExcluindo(true);
     const { error } = await supabase.from("agentes").delete().eq("id", excluir.id);
+    setExcluindo(false);
     if (error) toast.error("Erro ao excluir", { description: error.message });
     else {
       toast.success("Agente excluído");
