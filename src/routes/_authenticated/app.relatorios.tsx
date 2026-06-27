@@ -59,6 +59,7 @@ type Ligacao = {
   status: string | null;
   duracao_segundos: number | null;
   sentimento: Sentimento | null;
+  nota: number | null;
   resultado: string | null;
   transcricao: string | null;
   gravacao_url: string | null;
