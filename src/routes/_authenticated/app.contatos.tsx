@@ -238,16 +238,20 @@ function ContatosPage() {
         </Select>
       </div>
 
-      <div className="rounded-md border">
-        {isLoading ? (
-          <div className="p-10 text-center text-muted-foreground">Carregando...</div>
-        ) : contatos.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-muted-foreground">
-              Você ainda não tem contatos. Crie um ou importe um CSV.
-            </p>
-          </div>
-        ) : (
+      {isLoading ? (
+        <div className="rounded-md border p-10 text-center text-muted-foreground">
+          Carregando...
+        </div>
+      ) : contatos.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="Você ainda não tem contatos"
+          description="Importe seus primeiros contatos a partir de um arquivo CSV ou cadastre manualmente."
+          actionLabel="Cadastrar primeiro contato"
+          onAction={abrirNovo}
+        />
+      ) : (
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -289,8 +293,8 @@ function ContatosPage() {
               )}
             </TableBody>
           </Table>
-        )}
-      </div>
+        </div>
+      )}
 
       <ContatoFormDialog
         open={dialogOpen}
@@ -309,8 +313,17 @@ function ContatosPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmarExclusao}>Excluir</AlertDialogAction>
+            <AlertDialogCancel disabled={excluindo}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmarExclusao} disabled={excluindo}>
+              {excluindo ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                "Excluir"
+              )}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
