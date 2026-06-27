@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { rotuloIdioma, rotuloVoz } from "@/lib/agentes";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const Route = createFileRoute("/_authenticated/app/agentes")({
   head: () => ({ meta: [{ title: "Agentes — VozIA" }] }),
