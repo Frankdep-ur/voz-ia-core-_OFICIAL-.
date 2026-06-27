@@ -1,62 +1,43 @@
 ## Objetivo
-Adicionar navegação lateral persistente para área autenticada e construir a tela de Contatos completa (CRUD + busca + filtro + importação CSV).
+Construir a tela "Agentes" completa (listagem + criar/editar) substituindo o placeholder atual, e adicionar a coluna `saudacao_inicial` na tabela `agentes`.
 
-## 1. Layout com menu lateral
+## 1. Migração de banco
+Adicionar coluna `saudacao_inicial text` em `public.agentes`. RLS permanece (já está `agentes_all_own`). Sem outras mudanças.
 
-**`src/routes/_authenticated/route.tsx`** — transformar em layout com `SidebarProvider` + `AppSidebar` + `<Outlet />`. Mantém o `beforeLoad` atual.
+## 2. Constantes compartilhadas — `src/lib/agentes.ts` (novo)
+- `VOZES_OPCOES`: array com `{ id, label }`:
+  - `feminina_calorosa` — "Feminina — calorosa (recomendada)"
+  - `feminina_jovem` — "Feminina — jovem e animada"
+  - `masculina_profissional` — "Masculina — profissional"
+  - `masculina_grave` — "Masculina — grave e calmo"
+- `IDIOMAS_OPCOES`: `pt-BR` (padrão), `pt-PT`, `en-US` com labels.
+- `MODELO_PERSONA_EXEMPLO`: string exata fornecida pelo usuário.
+- `SAUDACAO_PLACEHOLDER`: exemplo "Oi, tudo bem? Aqui é a Ana...".
 
-**`src/components/app-sidebar.tsx`** (novo) — usa `@/components/ui/sidebar` (shadcn já instalado).
-- Topo: "VozIA"
-- Itens (com `Link` do TanStack e `isActive` via `useRouterState`):
-  - Início → `/app`
-  - Contatos → `/app/contatos`
-  - Agentes → `/app/agentes`
-  - Campanhas → `/app/campanhas`
-  - Relatórios → `/app/relatorios`
-- Rodapé: e-mail do usuário (via `supabase.auth.getUser`) + botão "Sair" + toggle de tema
-- `collapsible="icon"` para colapsar
+## 3. Tela de listagem — `src/routes/_authenticated/app.agentes.tsx` (substitui "Em breve")
+- Header: título "Agentes", subtítulo "Crie a personalidade e a voz da sua IA nas ligações." + botão "Novo agente" → navega para `/app/agentes/novo`.
+- `useQuery` lendo `supabase.from("agentes").select("*").eq("user_id", uid).order("criado_em", { ascending: false })`.
+- Grid de cards (shadcn `Card`): nome, trecho da persona (clamp ~2 linhas), label da voz (resolvido via `VOZES_OPCOES`), label do idioma. Botões editar (→ `/app/agentes/$id`) e excluir (AlertDialog "Tem certeza?").
+- Estado vazio: mensagem amigável + botão "Criar primeiro agente".
 
-**`src/routes/_authenticated/app.tsx`** — simplificar: remover header próprio (agora vem do layout), manter conteúdo "Olá, [nome] / e-mail / texto introdutório".
+## 4. Formulário — `src/routes/_authenticated/app.agentes_.$id.tsx` (rota com `_` para não ficar aninhada em layout do listagem)
+- Path: `/app/agentes/novo` e `/app/agentes/<uuid>` no mesmo arquivo, distinguindo via `params.id === "novo"`.
+- Campos (react-hook-form + zod):
+  1. **Nome** (input, obrigatório, placeholder "Ana - Confirmação de consultas").
+  2. **Saudação inicial** (`Textarea` curto, ~3 linhas) com placeholder do exemplo e helper "É a primeira frase que a pessoa ouve quando atende a ligação."
+  3. **Personalidade e instruções** (`Textarea` grande, min-h ~360px) com card de dica ao lado explicando o que escrever (quem é, objetivo, tom, regras, o que fazer se não houver interesse). Botão "Usar modelo de exemplo" preenche com `MODELO_PERSONA_EXEMPLO` exato.
+  4. **Voz** (`Select` com `VOZES_OPCOES`, salva em `voz_id`) + input opcional "ID da voz do ElevenLabs (opcional)" — se preenchido, sobrescreve `voz_id` ao salvar. Aviso: "As vozes reais do ElevenLabs serão conectadas na fase do servidor. Por enquanto, escolha o estilo desejado."
+  5. **Idioma** (`Select`, padrão `pt-BR`).
+  6. **Velocidade da fala** (`Slider` 0.7–1.2, step 0.05, padrão 1.0) com valor numérico ao lado.
+- Botões: "Cancelar" (volta a `/app/agentes`) e "Salvar agente".
+- Modo edição: carrega via `useQuery` por `id`, popula `defaultValues` e usa `update`; modo novo usa `insert` com `user_id = auth.uid()`.
+- Após salvar: toast + navegar para `/app/agentes` e invalidar query.
 
-## 2. Páginas "Em breve"
-- `src/routes/_authenticated/app.agentes.tsx`
-- `src/routes/_authenticated/app.campanhas.tsx`
-- `src/routes/_authenticated/app.relatorios.tsx`
+## 5. Notas técnicas
+- Tudo em pt-BR, sem emojis, tema claro/escuro respeitando tokens.
+- Sidebar já tem item "Agentes" — sem mudanças nele.
+- Velocidade salva como número (coluna `velocidade_fala numeric`).
+- Persona/saudação podem ficar nullable no DB; a UI valida nome obrigatório e persona não-vazia.
 
-Cada uma: título + texto "Em breve".
-
-## 3. Tela de Contatos
-
-**`src/routes/_authenticated/app.contatos.tsx`** — página principal:
-- Header: título "Contatos", botões "Baixar modelo CSV", "Importar CSV" (input file oculto), "Novo contato"
-- Campo de busca (input com ícone) + Select de status (Todos / novo / ligado / convertido / nao_atender)
-- Tabela (shadcn `Table`) com colunas Nome, Telefone, E-mail, Tags, Status, Ações (editar/excluir)
-- Estado vazio amigável quando não há contatos
-- Carregamento via `useQuery` (TanStack Query já configurado), filtros aplicados client-side
-- Exclusão com `AlertDialog` de confirmação
-
-**`src/components/contatos/contato-form-dialog.tsx`** (novo) — Dialog com formulário:
-- Campos: Nome, Telefone, E-mail, Tags, Observações, Status (Select, default "novo")
-- Validação com Zod: telefone regex `^\+[1-9]\d{6,14}$` (E.164). Erro inline.
-- Modo criar e editar (recebe `contato?` opcional)
-- Salva via `supabase.from("contatos").insert/update`
-
-**`src/lib/contatos.ts`** (novo) — helpers:
-- `validarE164(tel)` 
-- `parseCSV(file)` → linhas { nome, telefone, email, tags }
-- `gerarCSVModelo()` → string CSV com cabeçalho e linha de exemplo
-- `STATUS_CONTATO_OPCOES` constante
-
-**Importar CSV**:
-- Parser simples (split por linha/vírgula respeitando aspas) — sem dependência nova
-- Para cada linha valida E.164; insere válidas em lote via `supabase.from("contatos").insert([...])` com `user_id`; conta ignoradas
-- Toast final: "X contatos importados, Y ignorados por telefone inválido"
-
-**Baixar modelo CSV**: gera Blob e dispara download via `<a download>`.
-
-## 4. Considerações técnicas
-- Todas as queries usam o `supabase` client do browser — RLS já garante filtro por `user_id`. No insert, preencher `user_id` com `auth.uid()` do cliente (necessário pelas policies `WITH CHECK`).
-- Tudo pt-BR, sem emojis, suporta tema claro/escuro via tokens do design system.
-- Rotas seguem convenção `app.contatos.tsx` (filho da rota `/_authenticated/app`). Como `app.tsx` atualmente é uma folha (sem `<Outlet />`), vou converter: criar `app.tsx` como layout com `<Outlet />` e mover o conteúdo "Olá" para `app.index.tsx`. Assim `/app` continua sendo a tela inicial e `/app/contatos`, `/app/agentes` etc. funcionam.
-
-Espera confirmação?
+## Pergunta antes de implementar
+Confirma que o campo "ID da voz do ElevenLabs (opcional)", quando preenchido, deve **sobrescrever** o `voz_id` do dropdown ao salvar (já que ambos usam a mesma coluna `voz_id`)? Ou prefere que eu apenas guarde a escolha do dropdown e ignore esse campo extra por enquanto (até a fase do servidor)?
