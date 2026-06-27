@@ -120,6 +120,7 @@ function ContatosPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    setImportando(true);
     try {
       const text = await file.text();
       const linhas = parseCSV(text);
@@ -161,6 +162,8 @@ function ContatosPage() {
       refetch();
     } catch (err: any) {
       toast.error("Erro ao ler arquivo", { description: err?.message });
+    } finally {
+      setImportando(false);
     }
   }
 
