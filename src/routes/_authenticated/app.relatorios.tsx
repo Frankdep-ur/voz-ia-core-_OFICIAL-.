@@ -213,9 +213,33 @@ function RelatoriosPage() {
           <h2 className="text-2xl font-semibold">Relatórios</h2>
           <p className="text-sm text-muted-foreground">Veja o resultado de cada ligação.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={inserirExemplo} disabled={inserindo}>
-          Inserir ligação de exemplo (teste)
-        </Button>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={gerarExemplos} disabled={gerando}>
+              {gerando ? "Gerando..." : "Gerar dados de exemplo (teste)"}
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" disabled={limpando}>
+                  Limpar ligações de exemplo
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso apaga todas as suas ligações. Esta ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={limparExemplos}>Apagar</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+          <span className="text-xs text-muted-foreground">Botões temporários para testes.</span>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
