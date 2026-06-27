@@ -83,7 +83,8 @@ function RelatoriosPage() {
   const [statusFiltro, setStatusFiltro] = useState<string>("todos");
   const [sentimentoFiltro, setSentimentoFiltro] = useState<string>("todos");
   const [selecionada, setSelecionada] = useState<Ligacao | null>(null);
-  const [inserindo, setInserindo] = useState(false);
+  const [gerando, setGerando] = useState(false);
+  const [limpando, setLimpando] = useState(false);
 
   const { data: userId } = useQuery({
     queryKey: ["auth-user-id"],
