@@ -320,6 +320,7 @@ function RelatoriosPage() {
                       <Badge variant="outline">{l.status ?? "—"}</Badge>
                     </TableCell>
                     <TableCell className="tabular-nums">{formatDuracao(l.duracao_segundos)}</TableCell>
+                    <TableCell className="tabular-nums">{formatNota(l.nota)}</TableCell>
                     <TableCell>
                       {l.sentimento ? (
                         <Badge className={sentimentoBadgeClass(l.sentimento)}>
