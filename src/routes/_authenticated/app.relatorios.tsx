@@ -311,6 +311,7 @@ function RelatoriosPage() {
           title="Nenhuma ligação ainda"
           description="As ligações aparecerão aqui assim que suas campanhas começarem a rodar."
         />
+      ) : (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
