@@ -218,12 +218,26 @@ function RelatoriosPage() {
         <div className="flex flex-col items-end gap-1">
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={gerarExemplos} disabled={gerando}>
-              {gerando ? "Gerando..." : "Gerar dados de exemplo (teste)"}
+              {gerando ? (
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                "Gerar dados de exemplo (teste)"
+              )}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" size="sm" disabled={limpando}>
-                  Limpar ligações de exemplo
+                  {limpando ? (
+                    <>
+                      <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                      Limpando...
+                    </>
+                  ) : (
+                    "Limpar ligações de exemplo"
+                  )}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -234,8 +248,17 @@ function RelatoriosPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={limparExemplos}>Apagar</AlertDialogAction>
+                  <AlertDialogCancel disabled={limpando}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={limparExemplos} disabled={limpando}>
+                    {limpando ? (
+                      <>
+                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                        Apagando...
+                      </>
+                    ) : (
+                      "Apagar"
+                    )}
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
