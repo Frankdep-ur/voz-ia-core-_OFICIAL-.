@@ -70,3 +70,100 @@ Stefany: Que ótimo! Você poderia me dar uma nota de 1 a 10 sobre o atendimento
 Cliente: Pode ser nota 9. Foi bem rápido e o pessoal foi atencioso.
 Stefany: Muito obrigada! Sua opinião é muito importante pra gente. Tenha um ótimo dia!
 Cliente: Obrigado, tchau.`;
+
+export function formatNota(n: number | null | undefined): string {
+  if (n == null || isNaN(n)) return "—";
+  return n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
+export type LigacaoInsert = {
+  user_id: string;
+  contato_id: string;
+  campanha_id: string;
+  status: string;
+  duracao_segundos: number | null;
+  nota: number | null;
+  sentimento: Sentimento | null;
+  resultado: string | null;
+  transcricao: string | null;
+  gravacao_url: null;
+  iniciada_em: string;
+  finalizada_em: string | null;
+};
+
+function pick<T>(arr: T[], i: number): T {
+  return arr[i % arr.length];
+}
+
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function resultadoParaNota(nota: number | null, status: string): string | null {
+  if (status === "sem_resposta") return "Cliente não atendeu.";
+  if (nota == null) return null;
+  if (nota >= 9) return `Cliente deu nota ${nota}. Elogiou a rapidez e a atenção do atendimento.`;
+  if (nota >= 8) return `Cliente deu nota ${nota}. Avaliação positiva, mencionou satisfação com o serviço.`;
+  if (nota >= 6) return `Cliente deu nota ${nota}. Avaliação neutra, sem comentários adicionais.`;
+  return `Cliente deu nota ${nota}. Reclamou da demora e disse que esperava mais.`;
+}
+
+export function gerarLoteExemplo(params: {
+  userId: string;
+  contatosIds: string[];
+  campanhasIds: string[];
+  quantidade?: number;
+}): LigacaoInsert[] {
+  const { userId, contatosIds, campanhasIds } = params;
+  const quantidade = params.quantidade ?? 12;
+  const agora = Date.now();
+  const seteDias = 7 * 24 * 60 * 60 * 1000;
+  const lote: LigacaoInsert[] = [];
+
+  // forçar 2 negativas (nota 3-5)
+  const indicesNegativos = new Set<number>([2, 7]);
+
+  for (let i = 0; i < quantidade; i++) {
+    const ts = new Date(agora - Math.floor(Math.random() * seteDias));
+    const iniciada_em = ts.toISOString();
+    const semResposta = Math.random() < 0.2;
+    if (semResposta) {
+      lote.push({
+        user_id: userId,
+        contato_id: pick(contatosIds, i),
+        campanha_id: pick(campanhasIds, i),
+        status: "sem_resposta",
+        duracao_segundos: null,
+        nota: null,
+        sentimento: null,
+        resultado: "Cliente não atendeu.",
+        transcricao: null,
+        gravacao_url: null,
+        iniciada_em,
+        finalizada_em: iniciada_em,
+      });
+      continue;
+    }
+    const nota = indicesNegativos.has(i) ? randomInt(3, 5) : randomInt(6, 10);
+    let sentimento: Sentimento;
+    if (nota >= 8) sentimento = "positivo";
+    else if (nota >= 6) sentimento = "neutro";
+    else sentimento = "negativo";
+    const duracao = randomInt(25, 90);
+    lote.push({
+      user_id: userId,
+      contato_id: pick(contatosIds, i),
+      campanha_id: pick(campanhasIds, i),
+      status: "atendida",
+      duracao_segundos: duracao,
+      nota,
+      sentimento,
+      resultado: resultadoParaNota(nota, "atendida"),
+      transcricao: TRANSCRICAO_EXEMPLO,
+      gravacao_url: null,
+      iniciada_em,
+      finalizada_em: new Date(ts.getTime() + duracao * 1000).toISOString(),
+    });
+  }
+  return lote;
+}

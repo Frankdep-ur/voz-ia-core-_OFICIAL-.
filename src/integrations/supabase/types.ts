@@ -178,6 +178,7 @@ export type Database = {
           gravacao_url: string | null
           id: string
           iniciada_em: string | null
+          nota: number | null
           resultado: string | null
           sentimento: Database["public"]["Enums"]["app_sentimento"] | null
           status: string | null
@@ -193,6 +194,7 @@ export type Database = {
           gravacao_url?: string | null
           id?: string
           iniciada_em?: string | null
+          nota?: number | null
           resultado?: string | null
           sentimento?: Database["public"]["Enums"]["app_sentimento"] | null
           status?: string | null
@@ -208,6 +210,7 @@ export type Database = {
           gravacao_url?: string | null
           id?: string
           iniciada_em?: string | null
+          nota?: number | null
           resultado?: string | null
           sentimento?: Database["public"]["Enums"]["app_sentimento"] | null
           status?: string | null

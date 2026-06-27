@@ -26,12 +26,24 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
   SENTIMENTO_LABEL,
-  TRANSCRICAO_EXEMPLO,
   formatDataHora,
   formatDuracao,
+  formatNota,
+  gerarLoteExemplo,
   parseTranscricaoChat,
   sentimentoBadgeClass,
   type Sentimento,
@@ -47,6 +59,7 @@ type Ligacao = {
   status: string | null;
   duracao_segundos: number | null;
   sentimento: Sentimento | null;
+  nota: number | null;
   resultado: string | null;
   transcricao: string | null;
   gravacao_url: string | null;
@@ -70,7 +83,8 @@ function RelatoriosPage() {
   const [statusFiltro, setStatusFiltro] = useState<string>("todos");
   const [sentimentoFiltro, setSentimentoFiltro] = useState<string>("todos");
   const [selecionada, setSelecionada] = useState<Ligacao | null>(null);
-  const [inserindo, setInserindo] = useState(false);
+  const [gerando, setGerando] = useState(false);
+  const [limpando, setLimpando] = useState(false);
 
   const { data: userId } = useQuery({
     queryKey: ["auth-user-id"],
@@ -84,7 +98,7 @@ function RelatoriosPage() {
       const { data, error } = await supabase
         .from("ligacoes")
         .select(
-          `id, status, duracao_segundos, sentimento, resultado, transcricao, gravacao_url,
+          `id, status, duracao_segundos, sentimento, nota, resultado, transcricao, gravacao_url,
            iniciada_em, finalizada_em, campanha_id, contato_id,
            contatos:contato_id ( nome, telefone ),
            campanhas:campanha_id ( nome )`,
@@ -147,38 +161,48 @@ function RelatoriosPage() {
     });
   }, [ligacoes, busca, campanhaFiltro, statusFiltro, sentimentoFiltro]);
 
-  async function inserirExemplo() {
+  async function gerarExemplos() {
     if (!userId) return;
-    setInserindo(true);
+    setGerando(true);
     try {
-      const [{ data: c }, { data: cmp }] = await Promise.all([
-        supabase.from("contatos").select("id").limit(1).maybeSingle(),
-        supabase.from("campanhas").select("id").limit(1).maybeSingle(),
+      const [{ data: cs }, { data: cmps }] = await Promise.all([
+        supabase.from("contatos").select("id"),
+        supabase.from("campanhas").select("id"),
       ]);
-      if (!c || !cmp) {
-        toast.warning("Crie um contato e uma campanha primeiro para inserir uma ligação de exemplo.");
+      if (!cs || cs.length === 0 || !cmps || cmps.length === 0) {
+        toast.warning("Crie pelo menos um contato e uma campanha primeiro.");
         return;
       }
-      const { error } = await supabase.from("ligacoes").insert({
-        user_id: userId,
-        contato_id: c.id,
-        campanha_id: cmp.id,
-        status: "atendida",
-        duracao_segundos: 47,
-        sentimento: "positivo",
-        resultado: "Cliente deu nota 9. Elogiou o atendimento e a rapidez do serviço.",
-        gravacao_url: null,
-        iniciada_em: new Date().toISOString(),
-        transcricao: TRANSCRICAO_EXEMPLO,
+      const lote = gerarLoteExemplo({
+        userId,
+        contatosIds: cs.map((c) => c.id),
+        campanhasIds: cmps.map((c) => c.id),
       });
+      const { error } = await supabase.from("ligacoes").insert(lote);
       if (error) {
-        toast.error("Erro ao inserir", { description: error.message });
+        toast.error("Erro ao gerar dados", { description: error.message });
         return;
       }
-      toast.success("Ligação de exemplo inserida");
+      toast.success(`${lote.length} ligações de exemplo geradas`);
       queryClient.invalidateQueries({ queryKey: ["ligacoes"] });
     } finally {
-      setInserindo(false);
+      setGerando(false);
+    }
+  }
+
+  async function limparExemplos() {
+    if (!userId) return;
+    setLimpando(true);
+    try {
+      const { error } = await supabase.from("ligacoes").delete().eq("user_id", userId);
+      if (error) {
+        toast.error("Erro ao limpar", { description: error.message });
+        return;
+      }
+      toast.success("Ligações apagadas");
+      queryClient.invalidateQueries({ queryKey: ["ligacoes"] });
+    } finally {
+      setLimpando(false);
     }
   }
 
@@ -189,9 +213,33 @@ function RelatoriosPage() {
           <h2 className="text-2xl font-semibold">Relatórios</h2>
           <p className="text-sm text-muted-foreground">Veja o resultado de cada ligação.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={inserirExemplo} disabled={inserindo}>
-          Inserir ligação de exemplo (teste)
-        </Button>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={gerarExemplos} disabled={gerando}>
+              {gerando ? "Gerando..." : "Gerar dados de exemplo (teste)"}
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" disabled={limpando}>
+                  Limpar ligações de exemplo
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso apaga todas as suas ligações. Esta ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={limparExemplos}>Apagar</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+          <span className="text-xs text-muted-foreground">Botões temporários para testes.</span>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
@@ -246,6 +294,7 @@ function RelatoriosPage() {
                 <TableHead>Campanha</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Duração</TableHead>
+                <TableHead>Nota</TableHead>
                 <TableHead>Sentimento</TableHead>
                 <TableHead>Data</TableHead>
               </TableRow>
@@ -253,7 +302,7 @@ function RelatoriosPage() {
             <TableBody>
               {filtradas.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                     Nenhuma ligação encontrada com esses filtros.
                   </TableCell>
                 </TableRow>
@@ -271,6 +320,7 @@ function RelatoriosPage() {
                       <Badge variant="outline">{l.status ?? "—"}</Badge>
                     </TableCell>
                     <TableCell className="tabular-nums">{formatDuracao(l.duracao_segundos)}</TableCell>
+                    <TableCell className="tabular-nums">{formatNota(l.nota)}</TableCell>
                     <TableCell>
                       {l.sentimento ? (
                         <Badge className={sentimentoBadgeClass(l.sentimento)}>
@@ -312,6 +362,7 @@ function DetalheLigacao({ ligacao }: { ligacao: Ligacao }) {
         <div>Campanha: <span className="font-medium">{ligacao.campanhas?.nome ?? "—"}</span></div>
         <div>Data: {formatDataHora(ligacao.iniciada_em)}</div>
         <div>Duração: <span className="tabular-nums">{formatDuracao(ligacao.duracao_segundos)}</span></div>
+        <div>Nota: <span className="tabular-nums font-medium">{formatNota(ligacao.nota)}</span></div>
         <div className="flex items-center gap-2 pt-1">
           <Badge variant="outline">{ligacao.status ?? "—"}</Badge>
           {ligacao.sentimento && (
