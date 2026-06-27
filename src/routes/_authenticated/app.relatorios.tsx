@@ -161,38 +161,48 @@ function RelatoriosPage() {
     });
   }, [ligacoes, busca, campanhaFiltro, statusFiltro, sentimentoFiltro]);
 
-  async function inserirExemplo() {
+  async function gerarExemplos() {
     if (!userId) return;
-    setInserindo(true);
+    setGerando(true);
     try {
-      const [{ data: c }, { data: cmp }] = await Promise.all([
-        supabase.from("contatos").select("id").limit(1).maybeSingle(),
-        supabase.from("campanhas").select("id").limit(1).maybeSingle(),
+      const [{ data: cs }, { data: cmps }] = await Promise.all([
+        supabase.from("contatos").select("id"),
+        supabase.from("campanhas").select("id"),
       ]);
-      if (!c || !cmp) {
-        toast.warning("Crie um contato e uma campanha primeiro para inserir uma ligação de exemplo.");
+      if (!cs || cs.length === 0 || !cmps || cmps.length === 0) {
+        toast.warning("Crie pelo menos um contato e uma campanha primeiro.");
         return;
       }
-      const { error } = await supabase.from("ligacoes").insert({
-        user_id: userId,
-        contato_id: c.id,
-        campanha_id: cmp.id,
-        status: "atendida",
-        duracao_segundos: 47,
-        sentimento: "positivo",
-        resultado: "Cliente deu nota 9. Elogiou o atendimento e a rapidez do serviço.",
-        gravacao_url: null,
-        iniciada_em: new Date().toISOString(),
-        transcricao: TRANSCRICAO_EXEMPLO,
+      const lote = gerarLoteExemplo({
+        userId,
+        contatosIds: cs.map((c) => c.id),
+        campanhasIds: cmps.map((c) => c.id),
       });
+      const { error } = await supabase.from("ligacoes").insert(lote);
       if (error) {
-        toast.error("Erro ao inserir", { description: error.message });
+        toast.error("Erro ao gerar dados", { description: error.message });
         return;
       }
-      toast.success("Ligação de exemplo inserida");
+      toast.success(`${lote.length} ligações de exemplo geradas`);
       queryClient.invalidateQueries({ queryKey: ["ligacoes"] });
     } finally {
-      setInserindo(false);
+      setGerando(false);
+    }
+  }
+
+  async function limparExemplos() {
+    if (!userId) return;
+    setLimpando(true);
+    try {
+      const { error } = await supabase.from("ligacoes").delete().eq("user_id", userId);
+      if (error) {
+        toast.error("Erro ao limpar", { description: error.message });
+        return;
+      }
+      toast.success("Ligações apagadas");
+      queryClient.invalidateQueries({ queryKey: ["ligacoes"] });
+    } finally {
+      setLimpando(false);
     }
   }
 
