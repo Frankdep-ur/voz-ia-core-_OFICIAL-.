@@ -381,7 +381,14 @@ function NovaCampanhaPage() {
             Cancelar
           </Button>
           <Button onClick={salvar} disabled={salvando}>
-            {salvando ? "Salvando..." : "Salvar campanha"}
+            {salvando ? (
+              <>
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              "Salvar campanha"
+            )}
           </Button>
         </div>
       </div>
