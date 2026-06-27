@@ -1,11 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Pause, Play } from "lucide-react";
+import { ArrowLeft, Loader2, Pause, Play, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -16,13 +15,17 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import {
-  STATUS_CAMPANHA_CONTATO_LABEL,
-  STATUS_CAMPANHA_LABEL,
   formatarDataHora,
   proximaAcao,
   type StatusCampanha,
   type StatusCampanhaContato,
 } from "@/lib/campanhas";
+import {
+  CampanhaContatoStatusBadge,
+  CampanhaStatusBadge,
+} from "@/components/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { extrairErroEdge } from "@/lib/edge-errors";
 import { rotuloIdioma, rotuloVoz } from "@/lib/agentes";
 
 export const Route = createFileRoute("/_authenticated/app/campanhas_/$id")({
