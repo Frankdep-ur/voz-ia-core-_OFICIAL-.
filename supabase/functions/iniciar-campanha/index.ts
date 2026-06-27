@@ -104,13 +104,13 @@ Deno.serve(async (req) => {
     });
     if (!resp.ok) {
       const text = await resp.text().catch(() => "");
-      return json(502, {
+      return json(200, {
         started: false,
         message: `Servidor de voz retornou ${resp.status}: ${text}`,
       });
     }
   } catch (e) {
-    return json(502, {
+    return json(200, {
       started: false,
       message: `Falha ao contatar o servidor de voz: ${(e as Error).message}`,
     });
