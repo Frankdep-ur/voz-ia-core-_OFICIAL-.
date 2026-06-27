@@ -131,7 +131,8 @@ function CampanhasPage() {
         body: { campanha_id: id },
       });
       if (error) {
-        toast.error("Erro ao iniciar", { description: error.message });
+        const detalhe = await extrairErroEdge(error, "Não foi possível iniciar a campanha.");
+        toast.error("Erro ao iniciar", { description: detalhe });
         return;
       }
       if (data?.started) {
