@@ -98,7 +98,7 @@ function RelatoriosPage() {
       const { data, error } = await supabase
         .from("ligacoes")
         .select(
-          `id, status, duracao_segundos, sentimento, resultado, transcricao, gravacao_url,
+          `id, status, duracao_segundos, sentimento, nota, resultado, transcricao, gravacao_url,
            iniciada_em, finalizada_em, campanha_id, contato_id,
            contatos:contato_id ( nome, telefone ),
            campanhas:campanha_id ( nome )`,
