@@ -302,6 +302,128 @@ function AgenteFormPage() {
           </div>
         </div>
 
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Ajuste fino da voz</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Button type="button" variant="outline" size="sm" onClick={aplicarVozSuave}>
+              <Sparkles className="mr-1 h-4 w-4" />
+              Voz suave e humanizada
+            </Button>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Estabilidade</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {estabilidade.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[estabilidade]}
+                onValueChange={(v) => setEstabilidade(v[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Mais baixo deixa a fala mais viva e variada; mais alto deixa constante e
+                previsível.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Semelhança com a sua voz</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {similaridade.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[similaridade]}
+                onValueChange={(v) => setSimilaridade(v[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Quanto o resultado deve se parecer com a voz clonada.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Expressividade</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {estilo.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[estilo]}
+                onValueChange={(v) => setEstilo(v[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Mais alto dá mais emoção e calor; muito alto pode soar exagerado.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Encerramento da ligação</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="encerrar-auto">
+                  Encerrar a ligação automaticamente ao concluir o objetivo
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  O agente se despede e desliga sozinho quando o objetivo é cumprido.
+                </p>
+              </div>
+              <Switch
+                id="encerrar-auto"
+                checked={encerrarAuto}
+                onCheckedChange={setEncerrarAuto}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="frase-despedida">Frase de despedida</Label>
+              <Input
+                id="frase-despedida"
+                placeholder={FRASE_DESPEDIDA_PADRAO}
+                value={fraseDespedida}
+                onChange={(e) => setFraseDespedida(e.target.value)}
+                disabled={!encerrarAuto}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="silencio">Encerrar após quantos segundos de silêncio</Label>
+              <Input
+                id="silencio"
+                type="number"
+                min={3}
+                max={60}
+                className="max-w-32"
+                value={silencioSegundos}
+                onChange={(e) =>
+                  setSilencioSegundos(
+                    Math.max(3, Math.min(60, Number(e.target.value) || 0)),
+                  )
+                }
+                disabled={!encerrarAuto}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end gap-2 border-t pt-6">
           <Button
             variant="outline"
