@@ -100,6 +100,15 @@ function AgenteFormPage() {
     }
     setIdioma((agente.idioma as IdiomaId) ?? "pt-BR");
     setVelocidade(Number(agente.velocidade_fala ?? 1));
+    const a = agente as any;
+    setEncerrarAuto(a.encerrar_automaticamente ?? true);
+    setFraseDespedida(a.frase_despedida ?? "");
+    setSilencioSegundos(
+      Number(a.silencio_para_encerrar_segundos ?? SILENCIO_PARA_ENCERRAR_PADRAO),
+    );
+    setEstabilidade(Number(a.voz_estabilidade ?? VOZ_SUAVE_HUMANIZADA.voz_estabilidade));
+    setSimilaridade(Number(a.voz_similaridade ?? VOZ_SUAVE_HUMANIZADA.voz_similaridade));
+    setEstilo(Number(a.voz_estilo ?? VOZ_SUAVE_HUMANIZADA.voz_estilo));
   }, [editando, agente]);
 
   async function salvar() {
