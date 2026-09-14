@@ -49,7 +49,27 @@ function AgenteFormPage() {
   const [vozIdElevenlabs, setVozIdElevenlabs] = useState("");
   const [idioma, setIdioma] = useState<IdiomaId>("pt-BR");
   const [velocidade, setVelocidade] = useState(1.0);
+  const [encerrarAuto, setEncerrarAuto] = useState(true);
+  const [fraseDespedida, setFraseDespedida] = useState("");
+  const [silencioSegundos, setSilencioSegundos] = useState(
+    SILENCIO_PARA_ENCERRAR_PADRAO,
+  );
+  const [estabilidade, setEstabilidade] = useState(
+    VOZ_SUAVE_HUMANIZADA.voz_estabilidade,
+  );
+  const [similaridade, setSimilaridade] = useState(
+    VOZ_SUAVE_HUMANIZADA.voz_similaridade,
+  );
+  const [estilo, setEstilo] = useState(VOZ_SUAVE_HUMANIZADA.voz_estilo);
   const [salvando, setSalvando] = useState(false);
+
+  function aplicarVozSuave() {
+    setEstabilidade(VOZ_SUAVE_HUMANIZADA.voz_estabilidade);
+    setSimilaridade(VOZ_SUAVE_HUMANIZADA.voz_similaridade);
+    setEstilo(VOZ_SUAVE_HUMANIZADA.voz_estilo);
+    setVelocidade(VOZ_SUAVE_HUMANIZADA.velocidade_fala);
+    toast.success("Ajuste de voz suave aplicado. Salve para valer nas ligações.");
+  }
 
   const { data: agente, isLoading } = useQuery({
     queryKey: ["agente", id],
