@@ -54,13 +54,13 @@ function AgenteFormPage() {
   const [silencioSegundos, setSilencioSegundos] = useState(
     SILENCIO_PARA_ENCERRAR_PADRAO,
   );
-  const [estabilidade, setEstabilidade] = useState(
+  const [estabilidade, setEstabilidade] = useState<number>(
     VOZ_SUAVE_HUMANIZADA.voz_estabilidade,
   );
-  const [similaridade, setSimilaridade] = useState(
+  const [similaridade, setSimilaridade] = useState<number>(
     VOZ_SUAVE_HUMANIZADA.voz_similaridade,
   );
-  const [estilo, setEstilo] = useState(VOZ_SUAVE_HUMANIZADA.voz_estilo);
+  const [estilo, setEstilo] = useState<number>(VOZ_SUAVE_HUMANIZADA.voz_estilo);
   const [salvando, setSalvando] = useState(false);
 
   function aplicarVozSuave() {
