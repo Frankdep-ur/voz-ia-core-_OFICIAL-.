@@ -130,6 +130,12 @@ function AgenteFormPage() {
       voz_id: vozFinal,
       idioma,
       velocidade_fala: velocidade,
+      encerrar_automaticamente: encerrarAuto,
+      frase_despedida: fraseDespedida.trim() || null,
+      silencio_para_encerrar_segundos: silencioSegundos,
+      voz_estabilidade: estabilidade,
+      voz_similaridade: similaridade,
+      voz_estilo: estilo,
     };
 
     const { error } = editando
