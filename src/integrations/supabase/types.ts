@@ -17,36 +17,54 @@ export type Database = {
       agentes: {
         Row: {
           criado_em: string
+          encerrar_automaticamente: boolean
+          frase_despedida: string | null
           id: string
           idioma: string
           nome: string | null
           persona_prompt: string | null
           saudacao_inicial: string | null
+          silencio_para_encerrar_segundos: number
           user_id: string
           velocidade_fala: number
+          voz_estabilidade: number
+          voz_estilo: number
           voz_id: string | null
+          voz_similaridade: number
         }
         Insert: {
           criado_em?: string
+          encerrar_automaticamente?: boolean
+          frase_despedida?: string | null
           id?: string
           idioma?: string
           nome?: string | null
           persona_prompt?: string | null
           saudacao_inicial?: string | null
+          silencio_para_encerrar_segundos?: number
           user_id: string
           velocidade_fala?: number
+          voz_estabilidade?: number
+          voz_estilo?: number
           voz_id?: string | null
+          voz_similaridade?: number
         }
         Update: {
           criado_em?: string
+          encerrar_automaticamente?: boolean
+          frase_despedida?: string | null
           id?: string
           idioma?: string
           nome?: string | null
           persona_prompt?: string | null
           saudacao_inicial?: string | null
+          silencio_para_encerrar_segundos?: number
           user_id?: string
           velocidade_fala?: number
+          voz_estabilidade?: number
+          voz_estilo?: number
           voz_id?: string | null
+          voz_similaridade?: number
         }
         Relationships: []
       }
