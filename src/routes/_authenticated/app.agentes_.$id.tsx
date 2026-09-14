@@ -15,16 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
+  FRASE_DESPEDIDA_PADRAO,
   IDIOMAS_OPCOES,
   MODELO_PERSONA_EXEMPLO,
   SAUDACAO_PLACEHOLDER,
+  SILENCIO_PARA_ENCERRAR_PADRAO,
+  VOZ_SUAVE_HUMANIZADA,
   VOZES_OPCOES,
   type IdiomaId,
   type VozId,
 } from "@/lib/agentes";
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/agentes_/$id")({
   head: () => ({ meta: [{ title: "Agente — VozIA" }] }),
@@ -45,7 +49,27 @@ function AgenteFormPage() {
   const [vozIdElevenlabs, setVozIdElevenlabs] = useState("");
   const [idioma, setIdioma] = useState<IdiomaId>("pt-BR");
   const [velocidade, setVelocidade] = useState(1.0);
+  const [encerrarAuto, setEncerrarAuto] = useState(true);
+  const [fraseDespedida, setFraseDespedida] = useState("");
+  const [silencioSegundos, setSilencioSegundos] = useState(
+    SILENCIO_PARA_ENCERRAR_PADRAO,
+  );
+  const [estabilidade, setEstabilidade] = useState<number>(
+    VOZ_SUAVE_HUMANIZADA.voz_estabilidade,
+  );
+  const [similaridade, setSimilaridade] = useState<number>(
+    VOZ_SUAVE_HUMANIZADA.voz_similaridade,
+  );
+  const [estilo, setEstilo] = useState<number>(VOZ_SUAVE_HUMANIZADA.voz_estilo);
   const [salvando, setSalvando] = useState(false);
+
+  function aplicarVozSuave() {
+    setEstabilidade(VOZ_SUAVE_HUMANIZADA.voz_estabilidade);
+    setSimilaridade(VOZ_SUAVE_HUMANIZADA.voz_similaridade);
+    setEstilo(VOZ_SUAVE_HUMANIZADA.voz_estilo);
+    setVelocidade(VOZ_SUAVE_HUMANIZADA.velocidade_fala);
+    toast.success("Ajuste de voz suave aplicado. Salve para valer nas ligações.");
+  }
 
   const { data: agente, isLoading } = useQuery({
     queryKey: ["agente", id],
@@ -76,6 +100,15 @@ function AgenteFormPage() {
     }
     setIdioma((agente.idioma as IdiomaId) ?? "pt-BR");
     setVelocidade(Number(agente.velocidade_fala ?? 1));
+    const a = agente as any;
+    setEncerrarAuto(a.encerrar_automaticamente ?? true);
+    setFraseDespedida(a.frase_despedida ?? "");
+    setSilencioSegundos(
+      Number(a.silencio_para_encerrar_segundos ?? SILENCIO_PARA_ENCERRAR_PADRAO),
+    );
+    setEstabilidade(Number(a.voz_estabilidade ?? VOZ_SUAVE_HUMANIZADA.voz_estabilidade));
+    setSimilaridade(Number(a.voz_similaridade ?? VOZ_SUAVE_HUMANIZADA.voz_similaridade));
+    setEstilo(Number(a.voz_estilo ?? VOZ_SUAVE_HUMANIZADA.voz_estilo));
   }, [editando, agente]);
 
   async function salvar() {
@@ -97,6 +130,12 @@ function AgenteFormPage() {
       voz_id: vozFinal,
       idioma,
       velocidade_fala: velocidade,
+      encerrar_automaticamente: encerrarAuto,
+      frase_despedida: fraseDespedida.trim() || null,
+      silencio_para_encerrar_segundos: silencioSegundos,
+      voz_estabilidade: estabilidade,
+      voz_similaridade: similaridade,
+      voz_estilo: estilo,
     };
 
     const { error } = editando
@@ -262,6 +301,128 @@ function AgenteFormPage() {
             <span>Mais rápido (1.20)</span>
           </div>
         </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Ajuste fino da voz</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Button type="button" variant="outline" size="sm" onClick={aplicarVozSuave}>
+              <Sparkles className="mr-1 h-4 w-4" />
+              Voz suave e humanizada
+            </Button>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Estabilidade</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {estabilidade.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[estabilidade]}
+                onValueChange={(v) => setEstabilidade(v[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Mais baixo deixa a fala mais viva e variada; mais alto deixa constante e
+                previsível.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Semelhança com a sua voz</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {similaridade.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[similaridade]}
+                onValueChange={(v) => setSimilaridade(v[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Quanto o resultado deve se parecer com a voz clonada.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Expressividade</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {estilo.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[estilo]}
+                onValueChange={(v) => setEstilo(v[0])}
+              />
+              <p className="text-xs text-muted-foreground">
+                Mais alto dá mais emoção e calor; muito alto pode soar exagerado.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Encerramento da ligação</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="encerrar-auto">
+                  Encerrar a ligação automaticamente ao concluir o objetivo
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  O agente se despede e desliga sozinho quando o objetivo é cumprido.
+                </p>
+              </div>
+              <Switch
+                id="encerrar-auto"
+                checked={encerrarAuto}
+                onCheckedChange={setEncerrarAuto}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="frase-despedida">Frase de despedida</Label>
+              <Input
+                id="frase-despedida"
+                placeholder={FRASE_DESPEDIDA_PADRAO}
+                value={fraseDespedida}
+                onChange={(e) => setFraseDespedida(e.target.value)}
+                disabled={!encerrarAuto}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="silencio">Encerrar após quantos segundos de silêncio</Label>
+              <Input
+                id="silencio"
+                type="number"
+                min={3}
+                max={60}
+                className="max-w-32"
+                value={silencioSegundos}
+                onChange={(e) =>
+                  setSilencioSegundos(
+                    Math.max(3, Math.min(60, Number(e.target.value) || 0)),
+                  )
+                }
+                disabled={!encerrarAuto}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="flex justify-end gap-2 border-t pt-6">
           <Button

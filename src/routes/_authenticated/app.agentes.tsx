@@ -31,6 +31,7 @@ type AgenteRow = {
   persona_prompt: string | null;
   voz_id: string | null;
   idioma: string | null;
+  encerrar_automaticamente: boolean | null;
 };
 
 function AgentesPage() {
@@ -44,7 +45,7 @@ function AgentesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("agentes")
-        .select("id, nome, persona_prompt, voz_id, idioma")
+        .select("id, nome, persona_prompt, voz_id, idioma, encerrar_automaticamente")
         .order("criado_em", { ascending: false });
       if (error) throw error;
       return (data ?? []) as AgenteRow[];
@@ -105,6 +106,9 @@ function AgentesPage() {
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">{rotuloVoz(a.voz_id)}</Badge>
                   <Badge variant="outline">{rotuloIdioma(a.idioma)}</Badge>
+                  {a.encerrar_automaticamente ? (
+                    <Badge variant="outline">Encerra sozinho</Badge>
+                  ) : null}
                 </div>
                 <div className="mt-auto flex justify-end gap-1 pt-2">
                   <Button variant="ghost" size="icon" asChild>

@@ -27,6 +27,18 @@ export function rotuloIdioma(idioma: string | null | undefined): string {
   return encontrado ? encontrado.label : idioma;
 }
 
+export const VOZ_SUAVE_HUMANIZADA = {
+  voz_estabilidade: 0.4,
+  voz_similaridade: 0.8,
+  voz_estilo: 0.45,
+  velocidade_fala: 0.95,
+} as const;
+
+export const FRASE_DESPEDIDA_PADRAO =
+  "Obrigada pelo seu tempo, tenha um ótimo dia!";
+
+export const SILENCIO_PARA_ENCERRAR_PADRAO = 8;
+
 export const SAUDACAO_PLACEHOLDER =
   "Oi, tudo bem? Aqui é a Ana, da Clínica Sorriso. Estou ligando pra confirmar sua consulta de amanhã. Você tem um minutinho?";
 
@@ -45,4 +57,7 @@ REGRAS:
 - Não invente informações. Se não souber, diga que vai verificar.
 - Mantenha o foco no objetivo, sem ser insistente.
 
-ENCERRAMENTO: agradeça pelo tempo e se despeça de forma simpática.`;
+ENCERRAMENTO:
+- Assim que o objetivo for cumprido (ou a pessoa disser que não tem interesse), não continue a conversa: agradeça pelo tempo, se despeça de forma simpática e encerre a ligação.
+- Não repita informações nem faça novas perguntas depois da despedida.
+- Se a pessoa ficar em silêncio, pergunte uma única vez se ela ainda está na linha; se continuar sem resposta, despeça-se e encerre.`;
