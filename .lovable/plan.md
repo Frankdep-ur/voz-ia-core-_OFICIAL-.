@@ -1,31 +1,44 @@
-## Objetivo
-Permitir reexecutar uma campanha já iniciada e expor erros reais nas respostas da Edge Function `iniciar-campanha`.
+# Encerramento automático e voz mais suave (agente Stefany)
 
-## Mudanças em `supabase/functions/iniciar-campanha/index.ts`
+## O que muda para você
 
-1. **Reset antes de contar a fila**
-   - Após validar `campanha_id` e carregar a campanha (mantém leitura de `id, status`), executar dois updates via cliente autenticado (RLS garante posse):
-     - `UPDATE campanha_contatos SET status = 'na_fila', tentativas = 0, atualizado_em = now() WHERE campanha_id = :id` — devolve todos os contatos (atendida/sem_resposta/concluida/falhou/ligando) para a fila.
-     - `UPDATE campanhas SET status = 'rascunho' WHERE id = :id` — volta a campanha ao status inicial (mesmo de antes de iniciar). Observação: o schema não guarda o "status anterior real" de cada campanha; usamos `rascunho` como o estado inicial canônico definido pelo default da coluna. Se algum dos updates falhar, retornar o erro real (ver item 2).
-   - Só depois, contar `campanha_contatos` com `status = 'na_fila'` e seguir o fluxo atual (chamar `VOICE_BACKEND_URL`, marcar `em_andamento` no sucesso).
+No formulário do agente entram dois blocos novos:
 
-2. **Erros reais em todas as respostas**
-   - Toda resposta de erro passa a incluir o detalhe real (mensagem, status upstream, corpo retornado, stack quando aplicável) em vez de strings genéricas. Pontos afetados:
-     - Configuração ausente do Supabase: incluir quais envs faltam.
-     - Falta de `Authorization`: manter 401 com mensagem clara.
-     - JSON inválido no corpo: incluir a mensagem do `catch`.
-     - `campanha_id` ausente/ inválido: descrever o que veio.
-     - Erros do Supabase (`errCamp`, novos updates de reset, `errCount`, `errUpd`): retornar `error.message`, `error.details`, `error.hint`, `error.code`.
-     - Backend de voz indisponível (env faltando): listar quais.
-     - `fetch` para `${VOICE_BACKEND_URL}/campanhas/iniciar` falhando: retornar `status`, `statusText` e corpo bruto recebido.
-     - `catch` do `fetch`: retornar `message` e `stack`.
-   - Manter o padrão atual de devolver 200 com `{ started: false, message, detail }` para falhas "de negócio" (sem contatos, upstream com erro), e usar status HTTP de erro (4xx/5xx) somente para falhas de plataforma — sempre com payload detalhado.
+1. **Encerrar a ligação sozinho**
+   - Chave liga/desliga: "Encerrar a ligação automaticamente ao concluir o objetivo".
+   - Campo "Frase de despedida" (ex.: "Obrigada pelo seu tempo, tenha um ótimo dia!").
+   - Campo numérico "Encerrar após X segundos de silêncio" (padrão 8).
 
-3. **Sem mudanças** em schema, RLS, frontend ou outros arquivos.
+2. **Ajuste da voz (sua voz clonada)**
+   - Três controles deslizantes: **Estabilidade**, **Semelhança com a sua voz** e **Expressividade**.
+   - Um botão "Voz suave e humanizada" que já aplica os valores recomendados para o que você pediu (menos dura, mais emoção): estabilidade 0,40 / semelhança 0,80 / expressividade 0,45, velocidade 0,95.
+   - A velocidade da fala continua onde está hoje.
 
-## Validação
-- Deploy da function.
-- Rodar uma campanha já concluída/pausada e confirmar:
-  - `campanha_contatos` voltam para `na_fila` com `tentativas = 0`.
-  - `campanhas.status` volta para `rascunho` e depois para `em_andamento` quando o upstream aceita.
-  - Forçar erro (ex.: secret inválido) e confirmar que o toast no frontend mostra o detalhe real.
+O ID da sua voz clonada continua sendo usado normalmente — esses ajustes só mudam **como** ela é falada, não trocam a voz.
+
+## Instruções da Stefany
+
+As instruções do agente ganham um trecho de encerramento no modelo de exemplo, orientando a assistente a se despedir e encerrar assim que o objetivo for cumprido ou a pessoa não tiver interesse. Isso é o que faz o agente "saber" a hora de parar; a chave acima é o que faz o sistema realmente desligar.
+
+## Banco de dados
+
+Novas colunas em `agentes`:
+
+- `encerrar_automaticamente` (sim/não, padrão sim)
+- `frase_despedida` (texto)
+- `silencio_para_encerrar_segundos` (inteiro, padrão 8)
+- `voz_estabilidade`, `voz_similaridade`, `voz_estilo` (números 0–1, padrões 0.40 / 0.80 / 0.45)
+
+As regras de acesso atuais (cada usuário só vê os próprios agentes) continuam valendo.
+
+## Parte técnica
+
+- Uma migração adiciona as colunas acima com valores padrão, sem apagar nada.
+- `src/routes/_authenticated/app.agentes_.$id.tsx`: novos campos no formulário, incluídos no payload de insert/update.
+- `src/lib/agentes.ts`: preset `VOZ_SUAVE_HUMANIZADA`, texto de despedida padrão e bloco de encerramento no `MODELO_PERSONA_EXEMPLO`.
+- `src/routes/_authenticated/app.agentes.tsx`: card do agente mostra se o encerramento automático está ativo.
+- Nenhuma mudança na Edge Function `iniciar-campanha` nem nas telas de campanhas/relatórios.
+
+## Importante sobre o servidor de voz
+
+O desligamento real da chamada e o envio desses parâmetros ao ElevenLabs acontecem no servidor de voz externo (Railway), que não faz parte deste projeto. Depois de aprovado, o painel passa a gravar essas configurações no agente e eu te entrego a lista exata de campos que o servidor precisa ler (`encerrar_automaticamente`, `frase_despedida`, `silencio_para_encerrar_segundos`, `voz_estabilidade`, `voz_similaridade`, `voz_estilo`) para aplicar no Twilio e no ElevenLabs.
