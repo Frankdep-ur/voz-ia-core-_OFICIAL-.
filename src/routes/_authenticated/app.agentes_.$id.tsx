@@ -15,16 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
+  FRASE_DESPEDIDA_PADRAO,
   IDIOMAS_OPCOES,
   MODELO_PERSONA_EXEMPLO,
   SAUDACAO_PLACEHOLDER,
+  SILENCIO_PARA_ENCERRAR_PADRAO,
+  VOZ_SUAVE_HUMANIZADA,
   VOZES_OPCOES,
   type IdiomaId,
   type VozId,
 } from "@/lib/agentes";
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/agentes_/$id")({
   head: () => ({ meta: [{ title: "Agente — VozIA" }] }),
