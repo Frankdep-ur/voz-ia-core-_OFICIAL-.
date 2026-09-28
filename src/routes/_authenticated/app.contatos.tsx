@@ -255,6 +255,10 @@ function ContatosPage() {
           onAction={abrirNovo}
         />
       ) : (
+        <>
+          <p className="mb-2 text-sm text-muted-foreground">
+            Mostrando {filtrados.length} de {contatos.length} contatos
+          </p>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
