@@ -30,7 +30,13 @@ export const Route = createFileRoute("/_authenticated/app/campanhas_/nova")({
 });
 
 type AgenteOpt = { id: string; nome: string | null };
-type ContatoOpt = { id: string; nome: string | null; telefone: string | null; tags: string | null };
+type ContatoOpt = {
+  id: string;
+  nome: string | null;
+  telefone: string | null;
+  tags: string | null;
+  status: string;
+};
 
 function NovaCampanhaPage() {
   const { user } = Route.useRouteContext();
