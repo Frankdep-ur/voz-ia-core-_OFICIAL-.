@@ -114,6 +114,32 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Trava de opt-out: contatos marcados como "nao_atender" nunca voltam para a fila
+  const { data: naoAtender, error: errOptOut } = await supabase
+    .from("contatos")
+    .select("id")
+    .eq("status", "nao_atender");
+  if (errOptOut) {
+    return json(500, {
+      error: "Falha ao carregar contatos com opt-out",
+      ...pgErr(errOptOut),
+    });
+  }
+  const idsBloqueados = (naoAtender ?? []).map((c: { id: string }) => c.id);
+  if (idsBloqueados.length > 0) {
+    const { error: errBloq } = await supabase
+      .from("campanha_contatos")
+      .update({ status: "falhou", atualizado_em: new Date().toISOString() })
+      .eq("campanha_id", campanha_id)
+      .in("contato_id", idsBloqueados);
+    if (errBloq) {
+      return json(500, {
+        error: "Falha ao bloquear contatos com opt-out",
+        ...pgErr(errBloq),
+      });
+    }
+  }
+
   const { count, error: errCount } = await supabase
     .from("campanha_contatos")
     .select("id", { count: "exact", head: true })
