@@ -262,6 +262,39 @@ function RelatoriosPage() {
           <h2 className="text-2xl font-semibold">Relatórios</h2>
           <p className="text-sm text-muted-foreground">Veja o resultado de cada ligação.</p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm">
+              <Download className="mr-1 h-4 w-4" />
+              Baixar planilha
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64">
+            <DropdownMenuLabel>Baixar em planilha (CSV)</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => exportar("atendidas")}>
+              Quem atendeu
+              <span className="ml-auto text-xs text-muted-foreground">{contagens.atendidas}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportar("convertidas")}>
+              Convertidos
+              <span className="ml-auto text-xs text-muted-foreground">{contagens.convertidas}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportar("sem_sucesso")}>
+              Não deram certo
+              <span className="ml-auto text-xs text-muted-foreground">{contagens.sem_sucesso}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => exportar("filtradas")}>
+              O que está na tela agora
+              <span className="ml-auto text-xs text-muted-foreground">{contagens.filtradas}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportar("todas")}>
+              Todas as ligações
+              <span className="ml-auto text-xs text-muted-foreground">{contagens.todas}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div className="flex flex-col items-end gap-1">
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={gerarExemplos} disabled={gerando}>
