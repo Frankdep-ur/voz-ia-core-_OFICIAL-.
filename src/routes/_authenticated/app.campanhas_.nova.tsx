@@ -30,7 +30,13 @@ export const Route = createFileRoute("/_authenticated/app/campanhas_/nova")({
 });
 
 type AgenteOpt = { id: string; nome: string | null };
-type ContatoOpt = { id: string; nome: string | null; telefone: string | null; tags: string | null };
+type ContatoOpt = {
+  id: string;
+  nome: string | null;
+  telefone: string | null;
+  tags: string | null;
+  status: string;
+};
 
 function NovaCampanhaPage() {
   const { user } = Route.useRouteContext();
@@ -60,17 +66,24 @@ function NovaCampanhaPage() {
     },
   });
 
-  const { data: contatos = [] } = useQuery({
+  const { data: todosContatos = [] } = useQuery({
     queryKey: ["contatos-opt"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contatos")
-        .select("id, nome, telefone, tags")
+        .select("id, nome, telefone, tags, status")
         .order("nome", { ascending: true });
       if (error) throw error;
       return (data ?? []) as ContatoOpt[];
     },
   });
+
+  // Contatos que pediram para não receber mais ligações nunca entram em campanhas
+  const contatos = useMemo(
+    () => todosContatos.filter((c) => c.status !== "nao_atender"),
+    [todosContatos],
+  );
+  const bloqueados = todosContatos.length - contatos.length;
 
   const tagsDisponiveis = useMemo(() => {
     const set = new Set<string>();
@@ -228,6 +241,12 @@ function NovaCampanhaPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {bloqueados > 0 && (
+              <p className="mb-3 rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground">
+                {bloqueados} contato(s) com status "Não atender" foram ocultados e não podem
+                entrar em campanhas.
+              </p>
+            )}
             <Tabs defaultValue="manual">
               <TabsList>
                 <TabsTrigger value="manual">Manual</TabsTrigger>
