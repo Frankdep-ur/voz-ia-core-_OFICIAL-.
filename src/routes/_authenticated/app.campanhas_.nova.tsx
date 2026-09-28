@@ -241,6 +241,12 @@ function NovaCampanhaPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {bloqueados > 0 && (
+              <p className="mb-3 rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground">
+                {bloqueados} contato(s) com status "Não atender" foram ocultados e não podem
+                entrar em campanhas.
+              </p>
+            )}
             <Tabs defaultValue="manual">
               <TabsList>
                 <TabsTrigger value="manual">Manual</TabsTrigger>
