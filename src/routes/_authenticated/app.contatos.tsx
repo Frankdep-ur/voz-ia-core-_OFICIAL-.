@@ -302,6 +302,7 @@ function ContatosPage() {
             </TableBody>
           </Table>
         </div>
+        </>
       )}
 
       <ContatoFormDialog
