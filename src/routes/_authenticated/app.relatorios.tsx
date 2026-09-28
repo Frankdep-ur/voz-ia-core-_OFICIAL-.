@@ -182,6 +182,34 @@ function RelatoriosPage() {
     });
   }, [ligacoes, busca, campanhaFiltro, statusFiltro, sentimentoFiltro]);
 
+  const contagens = useMemo(
+    () => ({
+      atendidas: ligacoes.filter(foiAtendida).length,
+      convertidas: ligacoes.filter(foiConvertida).length,
+      sem_sucesso: ligacoes.filter(naoDeuCerto).length,
+      filtradas: filtradas.length,
+      todas: ligacoes.length,
+    }),
+    [ligacoes, filtradas],
+  );
+
+  function exportar(grupo: GrupoExport) {
+    const base = grupo === "filtradas" ? filtradas : ligacoes;
+    const lista = filtrarGrupo(base, grupo);
+    if (lista.length === 0) {
+      toast.warning("Nada para baixar", {
+        description: `Nenhuma ligação em "${GRUPO_LABEL[grupo]}".`,
+      });
+      return;
+    }
+    baixarCsv(nomeArquivoExport(grupo), gerarCsv(lista));
+    toast.success(`${lista.length} ligação(ões) baixada(s)`, {
+      description: GRUPO_LABEL[grupo],
+    });
+  }
+
+
+
   async function gerarExemplos() {
     if (!userId) return;
     setGerando(true);
