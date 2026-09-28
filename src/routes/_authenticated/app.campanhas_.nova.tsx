@@ -66,17 +66,24 @@ function NovaCampanhaPage() {
     },
   });
 
-  const { data: contatos = [] } = useQuery({
+  const { data: todosContatos = [] } = useQuery({
     queryKey: ["contatos-opt"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contatos")
-        .select("id, nome, telefone, tags")
+        .select("id, nome, telefone, tags, status")
         .order("nome", { ascending: true });
       if (error) throw error;
       return (data ?? []) as ContatoOpt[];
     },
   });
+
+  // Contatos que pediram para não receber mais ligações nunca entram em campanhas
+  const contatos = useMemo(
+    () => todosContatos.filter((c) => c.status !== "nao_atender"),
+    [todosContatos],
+  );
+  const bloqueados = todosContatos.length - contatos.length;
 
   const tagsDisponiveis = useMemo(() => {
     const set = new Set<string>();
