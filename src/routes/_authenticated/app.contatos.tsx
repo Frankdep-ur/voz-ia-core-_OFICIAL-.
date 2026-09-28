@@ -40,6 +40,7 @@ import {
   validarE164,
   type StatusContato,
 } from "@/lib/contatos";
+import { buscarTodos } from "@/lib/buscar-todos";
 import { ContatoFormDialog, type ContatoRow } from "@/components/contatos/contato-form-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -62,12 +63,14 @@ function ContatosPage() {
   const { data: contatos = [], isLoading, refetch } = useQuery({
     queryKey: ["contatos", user.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contatos")
-        .select("id, nome, telefone, email, tags, observacoes, status")
-        .order("criado_em", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as ContatoRow[];
+      const data = await buscarTodos<ContatoRow>(() =>
+        supabase
+          .from("contatos")
+          .select("id, nome, telefone, email, tags, observacoes, status")
+          .order("criado_em", { ascending: false })
+          .order("id", { ascending: true }),
+      );
+      return data;
     },
   });
 
@@ -79,7 +82,8 @@ function ContatosPage() {
       return (
         (c.nome ?? "").toLowerCase().includes(q) ||
         (c.telefone ?? "").toLowerCase().includes(q) ||
-        (c.email ?? "").toLowerCase().includes(q)
+        (c.email ?? "").toLowerCase().includes(q) ||
+        (c.tags ?? "").toLowerCase().includes(q)
       );
     });
   }, [contatos, busca, filtroStatus]);
@@ -251,6 +255,10 @@ function ContatosPage() {
           onAction={abrirNovo}
         />
       ) : (
+        <>
+          <p className="mb-2 text-sm text-muted-foreground">
+            Mostrando {filtrados.length} de {contatos.length} contatos
+          </p>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -294,6 +302,7 @@ function ContatosPage() {
             </TableBody>
           </Table>
         </div>
+        </>
       )}
 
       <ContatoFormDialog

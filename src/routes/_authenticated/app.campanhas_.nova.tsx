@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { extrairTags } from "@/lib/campanhas";
+import { buscarTodos } from "@/lib/buscar-todos";
 
 export const Route = createFileRoute("/_authenticated/app/campanhas_/nova")({
   head: () => ({ meta: [{ title: "Nova campanha — VozIA" }] }),
@@ -69,12 +70,14 @@ function NovaCampanhaPage() {
   const { data: todosContatos = [] } = useQuery({
     queryKey: ["contatos-opt"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contatos")
-        .select("id, nome, telefone, tags, status")
-        .order("nome", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as ContatoOpt[];
+      const data = await buscarTodos<ContatoOpt>(() =>
+        supabase
+          .from("contatos")
+          .select("id, nome, telefone, tags, status")
+          .order("nome", { ascending: true })
+          .order("id", { ascending: true }),
+      );
+      return data;
     },
   });
 
@@ -88,7 +91,9 @@ function NovaCampanhaPage() {
   const tagsDisponiveis = useMemo(() => {
     const set = new Set<string>();
     contatos.forEach((c) => extrairTags(c.tags).forEach((t) => set.add(t)));
-    return Array.from(set).sort();
+    return Array.from(set).sort((a, b) =>
+      a.localeCompare(b, "pt-BR", { numeric: true, sensitivity: "base" }),
+    );
   }, [contatos]);
 
   const contatosFiltrados = useMemo(() => {
