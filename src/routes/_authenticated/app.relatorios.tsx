@@ -1,12 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, Loader2 } from "lucide-react";
+import { BarChart3, Download, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  GRUPO_LABEL,
+  baixarCsv,
+  filtrarGrupo,
+  foiAtendida,
+  foiConvertida,
+  gerarCsv,
+  naoDeuCerto,
+  nomeArquivoExport,
+  type GrupoExport,
+} from "@/lib/exportar-ligacoes";
 import {
   Table,
   TableBody,
