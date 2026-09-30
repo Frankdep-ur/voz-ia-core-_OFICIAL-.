@@ -22,6 +22,8 @@ export const STATUS_CAMPANHA_CONTATO = [
   "sem_resposta",
   "concluida",
   "falhou",
+  "nao_atendida",
+  "descartado",
 ] as const;
 export type StatusCampanhaContato = (typeof STATUS_CAMPANHA_CONTATO)[number];
 
@@ -32,6 +34,8 @@ export const STATUS_CAMPANHA_CONTATO_LABEL: Record<StatusCampanhaContato, string
   sem_resposta: "Sem resposta",
   concluida: "Concluída",
   falhou: "Falhou",
+  nao_atendida: "Não atendeu",
+  descartado: "Descartado",
 };
 
 export function proximaAcao(
