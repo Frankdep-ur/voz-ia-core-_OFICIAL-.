@@ -296,7 +296,14 @@ export type Database = {
         | "sem_resposta"
         | "concluida"
         | "falhou"
-      app_status_contato: "novo" | "ligado" | "convertido" | "nao_atender"
+        | "nao_atendida"
+        | "descartado"
+      app_status_contato:
+        | "novo"
+        | "ligado"
+        | "convertido"
+        | "nao_atender"
+        | "descartado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -439,8 +446,16 @@ export const Constants = {
         "sem_resposta",
         "concluida",
         "falhou",
+        "nao_atendida",
+        "descartado",
       ],
-      app_status_contato: ["novo", "ligado", "convertido", "nao_atender"],
+      app_status_contato: [
+        "novo",
+        "ligado",
+        "convertido",
+        "nao_atender",
+        "descartado",
+      ],
     },
   },
 } as const
