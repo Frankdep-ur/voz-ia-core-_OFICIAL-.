@@ -19,6 +19,8 @@ const GREEN =
   "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300";
 const RED =
   "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300";
+const AMBER =
+  "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300";
 
 function classeCampanha(status: StatusCampanha | string): string {
   switch (status) {
@@ -59,6 +61,10 @@ function classeContato(status: StatusCampanhaContato | string): string {
     case "falhou":
     case "sem_resposta":
       return RED;
+    case "nao_atendida":
+      return AMBER;
+    case "descartado":
+      return NEUTRAL;
     case "ligando":
       return BLUE;
     default:

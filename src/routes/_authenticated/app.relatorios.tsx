@@ -66,6 +66,7 @@ import {
   formatNota,
   gerarLoteExemplo,
   parseTranscricaoChat,
+  rotuloStatusLigacao,
   sentimentoBadgeClass,
   type Sentimento,
 } from "@/lib/ligacoes";
@@ -368,7 +369,7 @@ function RelatoriosPage() {
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             {statusUnicos.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
+              <SelectItem key={s} value={s}>{rotuloStatusLigacao(s)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -424,7 +425,7 @@ function RelatoriosPage() {
                     <TableCell>{l.contatos?.telefone ?? "—"}</TableCell>
                     <TableCell>{l.campanhas?.nome ?? "—"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{l.status ?? "—"}</Badge>
+                      <Badge variant="outline">{rotuloStatusLigacao(l.status)}</Badge>
                     </TableCell>
                     <TableCell className="tabular-nums">{formatDuracao(l.duracao_segundos)}</TableCell>
                     <TableCell className="tabular-nums">{formatNota(l.nota)}</TableCell>
@@ -471,7 +472,7 @@ function DetalheLigacao({ ligacao }: { ligacao: Ligacao }) {
         <div>Duração: <span className="tabular-nums">{formatDuracao(ligacao.duracao_segundos)}</span></div>
         <div>Nota: <span className="tabular-nums font-medium">{formatNota(ligacao.nota)}</span></div>
         <div className="flex items-center gap-2 pt-1">
-          <Badge variant="outline">{ligacao.status ?? "—"}</Badge>
+          <Badge variant="outline">{rotuloStatusLigacao(ligacao.status)}</Badge>
           {ligacao.sentimento && (
             <Badge className={sentimentoBadgeClass(ligacao.sentimento)}>
               {SENTIMENTO_LABEL[ligacao.sentimento]}

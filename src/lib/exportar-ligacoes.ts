@@ -1,4 +1,9 @@
-import { formatDataHora, formatDuracao, type Sentimento } from "./ligacoes";
+import {
+  formatDataHora,
+  formatDuracao,
+  rotuloStatusLigacao,
+  type Sentimento,
+} from "./ligacoes";
 
 export type LigacaoExport = {
   id: string;
@@ -32,6 +37,7 @@ const STATUS_SEM_SUCESSO = [
   "caixa_postal",
   "recado_operadora",
   "nao_atendida",
+  "descartado",
 ];
 
 function norm(s: string | null | undefined): string {
@@ -89,7 +95,7 @@ export function gerarCsv(ligacoes: LigacaoExport[]): string {
         l.contatos?.nome ?? "",
         l.contatos?.telefone ?? "",
         l.campanhas?.nome ?? "",
-        l.status ?? "",
+        rotuloStatusLigacao(l.status),
         l.resultado ?? "",
         formatDuracao(l.duracao_segundos),
         l.duracao_segundos ?? "",

@@ -107,12 +107,22 @@ function DetalheCampanhaPage() {
   }, [id, queryClient]);
 
   const resumo = useMemo(() => {
-    const base = { total: linhas.length, na_fila: 0, ligando: 0, atendidas: 0, falhas: 0 };
+    const base = {
+      total: linhas.length,
+      na_fila: 0,
+      ligando: 0,
+      atendidas: 0,
+      nao_atendidas: 0,
+      falhas: 0,
+      descartados: 0,
+    };
     for (const l of linhas) {
       if (l.status === "na_fila") base.na_fila += 1;
       else if (l.status === "ligando") base.ligando += 1;
       else if (l.status === "atendida" || l.status === "concluida") base.atendidas += 1;
+      else if (l.status === "nao_atendida") base.nao_atendidas += 1;
       else if (l.status === "falhou" || l.status === "sem_resposta") base.falhas += 1;
+      else if (l.status === "descartado") base.descartados += 1;
     }
     return base;
   }, [linhas]);
@@ -250,13 +260,15 @@ function DetalheCampanhaPage() {
         </Card>
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-5">
+      <div className="mb-6 grid gap-3 sm:grid-cols-4 lg:grid-cols-7">
         {[
           { label: "Total", value: resumo.total },
           { label: "Na fila", value: resumo.na_fila },
           { label: "Ligando", value: resumo.ligando },
           { label: "Atendidas", value: resumo.atendidas },
+          { label: "Não atendeu", value: resumo.nao_atendidas },
           { label: "Falhas", value: resumo.falhas },
+          { label: "Descartados", value: resumo.descartados },
         ].map((s) => (
           <Card key={s.label}>
             <CardContent className="p-4">

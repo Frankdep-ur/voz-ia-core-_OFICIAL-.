@@ -6,6 +6,20 @@ export const SENTIMENTO_LABEL: Record<Sentimento, string> = {
   negativo: "Negativo",
 };
 
+export const STATUS_LIGACAO_LABEL: Record<string, string> = {
+  atendida: "Atendida",
+  sem_resposta: "Sem resposta",
+  nao_atendida: "Não atendeu",
+  descartado: "Descartado",
+  ligando: "Ligando",
+  falhou: "Falhou",
+};
+
+export function rotuloStatusLigacao(status: string | null | undefined): string {
+  if (!status) return "—";
+  return STATUS_LIGACAO_LABEL[status] ?? status;
+}
+
 export function sentimentoBadgeClass(s: Sentimento | null | undefined): string {
   if (s === "positivo")
     return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-transparent";

@@ -1,4 +1,4 @@
-export const STATUS_CONTATO = ["novo", "ligado", "convertido", "nao_atender"] as const;
+export const STATUS_CONTATO = ["novo", "ligado", "convertido", "nao_atender", "descartado"] as const;
 export type StatusContato = (typeof STATUS_CONTATO)[number];
 
 export const STATUS_LABEL: Record<StatusContato, string> = {
@@ -6,6 +6,7 @@ export const STATUS_LABEL: Record<StatusContato, string> = {
   ligado: "Ligado",
   convertido: "Convertido",
   nao_atender: "Não atender",
+  descartado: "Descartado",
 };
 
 export function validarE164(tel: string): boolean {
