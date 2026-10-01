@@ -19,13 +19,10 @@ function json(status: number, body: unknown) {
   });
 }
 
-function pgErr(e: { message?: string; details?: string | null; hint?: string | null; code?: string | null }) {
-  return {
-    message: e?.message ?? "Erro desconhecido",
-    details: e?.details ?? null,
-    hint: e?.hint ?? null,
-    code: e?.code ?? null,
-  };
+// Registra o detalhe técnico só no log interno; o usuário recebe a mensagem clara.
+function pgErr(e: unknown): Record<string, never> {
+  console.error("erro banco", e);
+  return {};
 }
 
 Deno.serve(async (req) => {
