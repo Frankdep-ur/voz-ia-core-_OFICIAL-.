@@ -9,31 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
-import { Route as AuthenticatedAppAgentesRouteImport } from './routes/_authenticated/app.agentes'
-import { Route as AuthenticatedAppCampanhasRouteImport } from './routes/_authenticated/app.campanhas'
-import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
 import { Route as AuthenticatedAppRelatoriosRouteImport } from './routes/_authenticated/app.relatorios'
-import { Route as AuthenticatedAppAgentesIdRouteImport } from './routes/_authenticated/app.agentes_.$id'
-import { Route as AuthenticatedAppCampanhasIdRouteImport } from './routes/_authenticated/app.campanhas_.$id'
+import { Route as AuthenticatedAppContatosRouteImport } from './routes/_authenticated/app.contatos'
+import { Route as AuthenticatedAppCampanhasRouteImport } from './routes/_authenticated/app.campanhas'
+import { Route as AuthenticatedAppAgentesRouteImport } from './routes/_authenticated/app.agentes'
 import { Route as AuthenticatedAppCampanhasNovaRouteImport } from './routes/_authenticated/app.campanhas_.nova'
+import { Route as AuthenticatedAppCampanhasIdRouteImport } from './routes/_authenticated/app.campanhas_.$id'
+import { Route as AuthenticatedAppAgentesIdRouteImport } from './routes/_authenticated/app.agentes_.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
@@ -46,15 +46,10 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
-const AuthenticatedAppAgentesRoute = AuthenticatedAppAgentesRouteImport.update({
-  id: '/agentes',
-  path: '/agentes',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppCampanhasRoute =
-  AuthenticatedAppCampanhasRouteImport.update({
-    id: '/campanhas',
-    path: '/campanhas',
+const AuthenticatedAppRelatoriosRoute =
+  AuthenticatedAppRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppContatosRoute =
@@ -63,16 +58,21 @@ const AuthenticatedAppContatosRoute =
     path: '/contatos',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppRelatoriosRoute =
-  AuthenticatedAppRelatoriosRouteImport.update({
-    id: '/relatorios',
-    path: '/relatorios',
+const AuthenticatedAppCampanhasRoute =
+  AuthenticatedAppCampanhasRouteImport.update({
+    id: '/campanhas',
+    path: '/campanhas',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppAgentesIdRoute =
-  AuthenticatedAppAgentesIdRouteImport.update({
-    id: '/agentes_/$id',
-    path: '/agentes/$id',
+const AuthenticatedAppAgentesRoute = AuthenticatedAppAgentesRouteImport.update({
+  id: '/agentes',
+  path: '/agentes',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCampanhasNovaRoute =
+  AuthenticatedAppCampanhasNovaRouteImport.update({
+    id: '/campanhas_/nova',
+    path: '/campanhas/nova',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 const AuthenticatedAppCampanhasIdRoute =
@@ -81,10 +81,10 @@ const AuthenticatedAppCampanhasIdRoute =
     path: '/campanhas/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppCampanhasNovaRoute =
-  AuthenticatedAppCampanhasNovaRouteImport.update({
-    id: '/campanhas_/nova',
-    path: '/campanhas/nova',
+const AuthenticatedAppAgentesIdRoute =
+  AuthenticatedAppAgentesIdRouteImport.update({
+    id: '/agentes_/$id',
+    path: '/agentes/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
 
@@ -178,11 +178,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -192,11 +192,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
@@ -213,18 +213,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/agentes': {
-      id: '/_authenticated/app/agentes'
-      path: '/agentes'
-      fullPath: '/app/agentes'
-      preLoaderRoute: typeof AuthenticatedAppAgentesRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/campanhas': {
-      id: '/_authenticated/app/campanhas'
-      path: '/campanhas'
-      fullPath: '/app/campanhas'
-      preLoaderRoute: typeof AuthenticatedAppCampanhasRouteImport
+    '/_authenticated/app/relatorios': {
+      id: '/_authenticated/app/relatorios'
+      path: '/relatorios'
+      fullPath: '/app/relatorios'
+      preLoaderRoute: typeof AuthenticatedAppRelatoriosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/contatos': {
@@ -234,18 +227,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppContatosRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/relatorios': {
-      id: '/_authenticated/app/relatorios'
-      path: '/relatorios'
-      fullPath: '/app/relatorios'
-      preLoaderRoute: typeof AuthenticatedAppRelatoriosRouteImport
+    '/_authenticated/app/campanhas': {
+      id: '/_authenticated/app/campanhas'
+      path: '/campanhas'
+      fullPath: '/app/campanhas'
+      preLoaderRoute: typeof AuthenticatedAppCampanhasRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/agentes_/$id': {
-      id: '/_authenticated/app/agentes_/$id'
-      path: '/agentes/$id'
-      fullPath: '/app/agentes/$id'
-      preLoaderRoute: typeof AuthenticatedAppAgentesIdRouteImport
+    '/_authenticated/app/agentes': {
+      id: '/_authenticated/app/agentes'
+      path: '/agentes'
+      fullPath: '/app/agentes'
+      preLoaderRoute: typeof AuthenticatedAppAgentesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/campanhas_/nova': {
+      id: '/_authenticated/app/campanhas_/nova'
+      path: '/campanhas/nova'
+      fullPath: '/app/campanhas/nova'
+      preLoaderRoute: typeof AuthenticatedAppCampanhasNovaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/campanhas_/$id': {
@@ -255,11 +255,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCampanhasIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/campanhas_/nova': {
-      id: '/_authenticated/app/campanhas_/nova'
-      path: '/campanhas/nova'
-      fullPath: '/app/campanhas/nova'
-      preLoaderRoute: typeof AuthenticatedAppCampanhasNovaRouteImport
+    '/_authenticated/app/agentes_/$id': {
+      id: '/_authenticated/app/agentes_/$id'
+      path: '/agentes/$id'
+      fullPath: '/app/agentes/$id'
+      preLoaderRoute: typeof AuthenticatedAppAgentesIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
   }
