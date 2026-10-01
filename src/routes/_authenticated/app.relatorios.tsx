@@ -317,7 +317,7 @@ function RelatoriosPage() {
                       Limpando...
                     </>
                   ) : (
-                    "Limpar ligações de exemplo"
+                    "Limpar todas as ligações"
                   )}
                 </Button>
               </AlertDialogTrigger>

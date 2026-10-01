@@ -91,16 +91,16 @@ Deno.serve(async (req) => {
     return json(404, { error: "Campanha não encontrada", campanha_id });
   }
 
-  // Reset: voltar contatos para 'na_fila' e campanha para 'rascunho'
+  // Retomada: só contatos que ficaram presos em 'ligando' voltam para a fila.
+  // Quem já foi atendido, não atendeu ou falhou permanece como está.
   const { error: errResetCC } = await supabase
     .from("campanha_contatos")
-    .update({ status: "na_fila", tentativas: 0, atualizado_em: new Date().toISOString() })
-    .eq("campanha_id", campanha_id);
+    .update({ status: "na_fila", atualizado_em: new Date().toISOString() })
+    .eq("campanha_id", campanha_id)
+    .eq("status", "ligando");
   if (errResetCC) {
-    return json(500, {
-      error: "Falha ao resetar campanha_contatos",
-      ...pgErr(errResetCC),
-    });
+    console.error("reset ligando", errResetCC);
+    return json(500, { error: "Não foi possível preparar a fila da campanha." });
   }
 
   const { error: errResetCamp } = await supabase
@@ -173,34 +173,36 @@ Deno.serve(async (req) => {
     });
   }
 
-  try {
-    const resp = await fetch(`${VOICE_BACKEND_URL}/campanhas/iniciar`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${VOICE_BACKEND_SECRET}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ campanha_id }),
-    });
-    if (!resp.ok) {
-      const text = await resp.text().catch(() => "");
-      return json(200, {
-        started: false,
-        message: `Servidor de voz retornou ${resp.status} ${resp.statusText}`,
-        detail: {
-          status: resp.status,
-          statusText: resp.statusText,
-          body: text,
-          url: `${VOICE_BACKEND_URL}/campanhas/iniciar`,
+  let ultimoErro = "";
+  let ok = false;
+  for (let tentativa = 0; tentativa < 3 && !ok; tentativa++) {
+    if (tentativa > 0) await new Promise((r) => setTimeout(r, 4000));
+    try {
+      const resp = await fetch(`${VOICE_BACKEND_URL}/campanhas/iniciar`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${VOICE_BACKEND_SECRET}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ campanha_id }),
       });
+      if (resp.ok) {
+        ok = true;
+        break;
+      }
+      const text = await resp.text().catch(() => "");
+      console.error("motor de voz", resp.status, text);
+      ultimoErro = `código ${resp.status}`;
+      if (resp.status < 500) break; // erro definitivo, não adianta repetir
+    } catch (e) {
+      console.error("falha ao contatar motor", e);
+      ultimoErro = "sem conexão";
     }
-  } catch (e) {
-    const err = e as Error;
+  }
+  if (!ok) {
     return json(200, {
       started: false,
-      message: `Falha ao contatar o servidor de voz: ${err.message}`,
-      detail: { message: err.message, stack: err.stack ?? null },
+      message: `O servidor de voz não respondeu (${ultimoErro}). Tente novamente em alguns instantes.`,
     });
   }
 
